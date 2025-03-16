@@ -39,15 +39,15 @@ For OpenSuse it will be most likely called `llvm-devel` and `libLLVM`, search fo
 
 ### LLVM version
 
-Recommended version is version (9,) 10, 11 or 12 (currently latest). Older version may require changes.
+Recommended version is version 19 (currently latest). Older version may require changes.
 
-To get the current LLVM version, just call:
+To get the current LLVM version in your system, just call:
 ```
 clang --version
 ```
 You should get an output similar to this:
 ```
-Ubuntu clang version 12.0.0-++rc3-4ubuntu1
+Ubuntu clang version 19.0.0-++rc3-4ubuntu1
 Target: x86_64-pc-linux-gnu
 Thread model: posix
 InstalledDir: /usr/bin
@@ -58,9 +58,9 @@ If you need to change version of LLVM library used modify `CMakeLists.txt` based
 # find_package(LLVM "${MAJOR}.${MINOR}" REQUIRED CONFIG)
 find_package(LLVM REQUIRED CONFIG)
 ```
-For example to force LLVM 10:
+For example to force LLVM 16:
 ```
-find_package(LLVM 10 REQUIRED CONFIG)
+find_package(LLVM 16 REQUIRED CONFIG)
 ```
 
 ## Building
@@ -157,15 +157,9 @@ And create file `/etc/apt/sources.list.d/llvm.list` with appropriate repositorie
 
 If you need to check your system version, use: `lsb_release -a`.
 
-Start with basic dependencies for LLVM 10, 11 or 12:
+Start with basic dependencies for e.g., LLVM 10
 ```
 sudo apt install clang cmake git llvm-10 llvm-10-dev
-```
-```
-sudo apt install clang cmake git llvm-11 llvm-11-dev
-```
-```
-sudo apt install clang cmake git llvm-12 llvm-12-dev
 ```
 You may be missing default `clang`, `clang++` and `llc` and have version specific binaries only. The best way to solve this is to make appropriate symlinks based on your version:
 ```
