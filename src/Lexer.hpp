@@ -2,70 +2,100 @@
 #define PJPPROJECT_LEXER_HPP
 
 #include <iostream>
+#include <string>
+#include <cctype>
+#include <map>
 
 class Lexer {
 public:
-    Lexer() = default;
+    Lexer(std::istream& input = std::cin);
     ~Lexer() = default;
 
-    int gettok();
-    const std::string& identifierStr() const { return this->m_IdentifierStr; }
-    int numVal() { return this->m_NumVal; }
-private:
-    std::string m_IdentifierStr;
-    int m_NumVal;
-};
+    int getToken();
+    const std::string& identifierStr() const { return m_IdentifierStr; }
+    int64_t numVal() const { return m_NumVal; }
+    const std::string& stringVal() const { return m_StringVal; }
 
+private:
+    // Helper methods
+    void advance() { m_LastChar = m_Input.get(); }
+    char peek() { 
+        char next = m_Input.peek();
+        return next == EOF ? '\0' : next;
+    }
+    void skipWhitespace();
+    int readNumber();
+    std::string readIdentifier();
+    int readString();
+    void skipComment();
+
+    // Member variables
+    std::istream& m_Input;
+    std::string m_IdentifierStr;
+    int64_t m_NumVal;
+    std::string m_StringVal;
+    int m_LastChar = ' ';
+    std::map<std::string, int> m_Keywords;
+};
 
 /*
  * Lexer returns tokens [0-255] if it is an unknown character, otherwise one of these for known things.
  * Here are all valid tokens:
  */
 enum Token {
-    tok_eof =           -1,
+    // Keywords
+    tok_program = -1,
+    tok_var = -2,
+    tok_array = -3,
+    tok_of = -4,
+    tok_begin = -5,
+    tok_end = -6,
+    tok_for = -7,
+    tok_do = -8,
+    tok_if = -9,
+    tok_then = -10,
+    tok_else = -11,
+    tok_to = -12,
+    tok_downto = -13,
+    tok_div = -14,
+    tok_mod = -15,
+    tok_const = -16,
+    tok_function = -17,
+    tok_while = -18,
+    tok_procedure = -19,
+    tok_exit = -20,
+    tok_or = -21,
+    tok_and = -22,
+    tok_not = -23,
+    tok_forward = -24,
+    tok_break = -25,
 
-    // numbers and identifiers
-    tok_identifier =    -2,
-    tok_number =        -3,
+    // Single character tokens
+    tok_colon = -26,      // :
+    tok_semicolon = -27,  // ;
+    tok_assign = -28,     // :=
+    tok_sqopen = -29,     // [
+    tok_sqclose = -30,    // ]
+    tok_paropen = -31,    // (
+    tok_parclose = -32,   // )
+    tok_dotdot = -33,     // ..
+    tok_dot = -34,        // .
+    tok_lt = -35,         // <
+    tok_gt = -36,         // >
+    tok_eq = -37,         // =
+    tok_ne = -38,         // <>
+    tok_le = -39,         // <=
+    tok_ge = -40,         // >=
+    tok_mul = -41,        // *
+    tok_add = -42,        // +
+    tok_sub = -43,        // -
+    tok_comma = -44,      // ,
 
-    // keywords
-    tok_begin =         -4,
-    tok_end =           -5,
-    tok_const =         -6,
-    tok_procedure =     -7,
-    tok_forward =       -8,
-    tok_function =      -9,
-    tok_if =            -10,
-    tok_then =          -11,
-    tok_else =          -12,
-    tok_program =       -13,
-    tok_while =         -14,
-    tok_exit =          -15,
-    tok_var =           -16,
-    tok_integer =       -17,
-    tok_for =           -18,
-    tok_do =            -19,
-
-    // 2-character operators
-    tok_notequal =      -20,
-    tok_lessequal =     -21,
-    tok_greaterequal =  -22,
-    tok_assign =        -23,
-    tok_or =            -24,
-
-    // 3-character operators (keywords)
-    tok_mod =           -25,
-    tok_div =           -26,
-    tok_not =           -27,
-    tok_and =           -28,
-    tok_xor =           -29,
-
-    // keywords in for loop
-    tok_to =            -30,
-    tok_downto =        -31,
-
-    // keywords for array
-    tok_array =         -32
+    // Special tokens
+    tok_identifier = -45,
+    tok_number = -46,
+    tok_string = -47,
+    tok_eof = -48
 };
 
 #endif //PJPPROJECT_LEXER_HPP

@@ -55,5 +55,5 @@ const llvm::Module& Parser::Generate()
  */
 int Parser::getNextToken()
 {
-    return CurTok = m_Lexer.gettok();
+    return CurTok = m_Lexer.getToken();
 }
