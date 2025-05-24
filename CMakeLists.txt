@@ -1,16 +1,12 @@
-cmake_minimum_required(VERSION 3.4.3)
+cmake_minimum_required(VERSION 3.12)
 project(mila)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# You can always add more flags without hardcoding them here using the following pattern
-# $ CXXFLAGS='-g -fsanitize=address -fsanitize=undefined' cmake <source_dir>
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic ${CMAKE_CXX_FLAGS}")
 
-# Change this to force specific version of LLVM
-# find_package(LLVM "${MAJOR}.${MINOR}" REQUIRED CONFIG)
-find_package(LLVM REQUIRED CONFIG)
+find_package(LLVM 19.1 REQUIRED CONFIG)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
