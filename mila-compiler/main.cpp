@@ -1,6 +1,4 @@
-#include "Parser.hpp"
-
-// Use tutorials in: https://llvm.org/docs/tutorial/
+#include <parser/parser.h>
 
 int main (int argc, char *argv[])
 {

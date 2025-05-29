@@ -1,4 +1,4 @@
-#include "Lexer.hpp"
+#include <lexer/lexer.h>
 #include <algorithm>
 
 Lexer::Lexer(std::istream& input) : m_Input(input) {

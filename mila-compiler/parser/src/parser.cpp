@@ -1,4 +1,4 @@
-#include "Parser.hpp"
+#include <parser/parser.h>
 
 Parser::Parser()
     : MilaContext()

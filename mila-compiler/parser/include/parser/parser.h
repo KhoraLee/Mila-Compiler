@@ -14,7 +14,7 @@
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Verifier.h>
 
-#include "Lexer.hpp"
+#include <lexer/lexer.h>
 
 class Parser {
 public:
