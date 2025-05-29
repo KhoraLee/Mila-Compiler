@@ -1,9 +1,9 @@
 if(NOT executable)
-   message(FATAL_ERROR "Variable executable not defined")
+	message(FATAL_ERROR "Variable executable not defined")
 endif()
 
 if(NOT expected)
-   message(FATAL_ERROR "Variable expected not defined")
+	message(FATAL_ERROR "Variable expected not defined")
 endif()
 
 # message(WARNING "exec=${executable} ; expec=${expected} ; input=${input}")
