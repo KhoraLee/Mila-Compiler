@@ -1,5 +1,6 @@
 set(SOURCE_LIST
 include/lexer/lexer.h
+include/lexer/types.h
 
 src/lexer.cpp
 )
