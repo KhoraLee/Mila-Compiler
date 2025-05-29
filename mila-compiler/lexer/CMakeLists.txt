@@ -1,8 +1,10 @@
 set(SOURCE_LIST
 include/lexer/lexer.h
 include/lexer/types.h
+include/lexer/token.h
 
 src/lexer.cpp
+src/token.cpp
 )
 
 add_library(lexer STATIC ${SOURCE_LIST})
