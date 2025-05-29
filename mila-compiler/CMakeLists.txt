@@ -6,12 +6,12 @@ add_executable(mila main.cpp)
 
 # Link
 target_link_libraries(mila
-	PRIVATE
-		parser
-		lexer
+  PRIVATE
+    parser
+    lexer
 )
 
 set_target_properties(mila PROPERTIES OUTPUT_NAME mila
-	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")

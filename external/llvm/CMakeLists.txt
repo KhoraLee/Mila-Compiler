@@ -1,6 +1,6 @@
 # taken from https://github.com/RPCS3/rpcs3/blob/master/3rdparty/llvm/CMakeLists.txt
 if(BUILD_LLVM)
-	message(STATUS "LLVM will be built from the submodule.")
+  message(STATUS "LLVM will be built from the submodule.")
 
   set(LLVM_TARGETS_TO_BUILD "AArch64;X86" CACHE STRING "Semicolon-separated list of targets to build, or \"all\".")
   option(LLVM_BUILD_RUNTIME "Build the LLVM runtime libraries." OFF)
@@ -41,26 +41,26 @@ if(BUILD_LLVM)
     message(FATAL_ERROR "Couldn't build LLVM from the submodule. You might need to run `git submodule update --init`")
   endif()
 else()
-	message(STATUS "Using prebuilt or system LLVM")
+  message(STATUS "Using prebuilt or system LLVM")
 
   # Locate llvm 19 directories from homebrew
   if(APPLE)
-		execute_process(
-			COMMAND brew --prefix llvm@19
-			RESULT_VARIABLE BREW_RESULT
-			OUTPUT_VARIABLE BREW_LLVM
-			OUTPUT_STRIP_TRAILING_WHITESPACE
-		)
+    execute_process(
+      COMMAND brew --prefix llvm@19
+      RESULT_VARIABLE BREW_RESULT
+      OUTPUT_VARIABLE BREW_LLVM
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
     if(BREW_RESULT EQUAL 0)
-  		# set(LLVM_DIR "${BREW_LLVM}/lib/cmake/llvm")
-    	list(APPEND CMAKE_PREFIX_PATH "${BREW_LLVM}")
+      # set(LLVM_DIR "${BREW_LLVM}/lib/cmake/llvm")
+      list(APPEND CMAKE_PREFIX_PATH "${BREW_LLVM}")
     endif()
   endif()
 
-	find_package(LLVM 19.1 CONFIG)
-	if(NOT LLVM_FOUND)
-		message(FATAL_ERROR "LLVM 19.1 not found. Enable BUILD_LLVM option to build LLVM from included as a git submodule.")
-	endif()
+  find_package(LLVM 19.1 CONFIG)
+  if(NOT LLVM_FOUND)
+    message(FATAL_ERROR "LLVM 19.1 not found. Enable BUILD_LLVM option to build LLVM from included as a git submodule.")
+  endif()
 endif()
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
