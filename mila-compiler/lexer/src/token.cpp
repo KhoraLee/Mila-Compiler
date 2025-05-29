@@ -1,4 +1,5 @@
 #include <lexer/token.h>
+#include <lexer/token_map.h>
 
 int OperatorToken::precedence() const {
   auto it = operators.find(_type);

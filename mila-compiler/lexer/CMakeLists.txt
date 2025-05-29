@@ -2,6 +2,7 @@ set(SOURCE_LIST
 include/lexer/lexer.h
 include/lexer/types.h
 include/lexer/token.h
+include/lexer/token_map.h
 
 src/lexer.cpp
 src/token.cpp

@@ -76,29 +76,3 @@ enum TokenType {
     // Identifiers and literals
     TOK_IDENTIFIER
 };
-
-const std::unordered_map<TokenType, std::pair<int, bool>> operators = {
-  // Assignment
-  { TOK_ASSIGN, { 5, false } },
-  
-  // Arithmetic
-  { TOK_PLUS, { 20, false } },
-  { TOK_MINUS, { 20, false } },
-  { TOK_MULTIPLY, { 40, false } },
-  { TOK_DIVIDE, {40, false } },
-  
-  { TOK_DIV, { 40, false } },
-  { TOK_MOD, { 40, false } },
-
-  // Comparison
-  { TOK_EQUAL, { 10, true } },
-  { TOK_LESS, { 10, true } },
-  { TOK_LESS_OR_EQUAL, { 10, true } },
-  { TOK_GREATER, { 10, true } },
-  { TOK_GREATER_OR_EQUAL, { 10, true } },
-  { TOK_NOT_EQUAL, { 10, true } },
-
-  // Logical
-  { TOK_AND, { 10, true } },
-  { TOK_OR, { 10, true } },
-};
