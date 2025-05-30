@@ -70,6 +70,8 @@ enum TokenType {
     TOK_COMMA,
     TOK_COLON,
     TOK_DOT,
+    TOK_OPEN_PAREN,
+    TOK_CLOSE_PAREN,
     TOK_OPEN_BRACKET,
     TOK_CLOSE_BRACKET,
     

@@ -5,11 +5,13 @@
 #include <set>
 
 const std::unordered_map<char, TokenType> symbol_map = {
-    { '=', TOK_EQUAL },
+    // { '=', TOK_EQUAL },
     { '.', TOK_DOT },
     { ';', TOK_SEMICOLON },
-    { '(', TOK_OPEN_BRACKET },
-    { ')', TOK_CLOSE_BRACKET },
+    { '(', TOK_OPEN_PAREN },
+    { ')', TOK_CLOSE_PAREN },
+    { '[', TOK_OPEN_BRACKET },
+    { ']', TOK_CLOSE_BRACKET },
     { ',', TOK_COMMA },
     { ':', TOK_COLON }
 };
