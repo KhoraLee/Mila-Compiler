@@ -1,3 +1,4 @@
+add_subdirectory(exception)
 #add_subdirectory(ast)
 add_subdirectory(parser)
 add_subdirectory(lexer)
@@ -9,6 +10,7 @@ target_link_libraries(mila
   PRIVATE
     parser
     lexer
+    exception
 )
 
 set_target_properties(mila PROPERTIES OUTPUT_NAME mila
