@@ -78,3 +78,8 @@ enum TokenType {
     // Identifiers and literals
     TOK_IDENTIFIER
 };
+
+enum IntBase {
+  OCT = 8,
+  HEX = 16,
+};

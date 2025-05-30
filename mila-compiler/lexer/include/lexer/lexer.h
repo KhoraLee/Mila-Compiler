@@ -1,38 +1,29 @@
 #pragma once
 
+#include<lexer/token.h>
+#include<lexer/types.h>
+
 #include <iostream>
 #include <string>
-#include <cctype>
-#include <map>
 
 class Lexer {
 public:
-    Lexer(std::istream& input = std::cin);
-    ~Lexer() = default;
-
-    int getToken();
-    const std::string& identifierStr() const { return m_IdentifierStr; }
-    int64_t numVal() const { return m_NumVal; }
-    const std::string& stringVal() const { return m_StringVal; }
+  explicit Lexer(std::istream& input);
+  ~Lexer() = default;
+  std::shared_ptr<Token> next_token();
 
 private:
-    // Helper methods
-    void advance() { m_LastChar = m_Input.get(); }
-    char peek() { 
-        char next = m_Input.peek();
-        return next == EOF ? '\0' : next;
-    }
-    void skipWhitespace();
-    int readNumber();
-    std::string readIdentifier();
-    int readString();
-    void skipComment();
+  std::istream& stream;
+  char current;
+  std::shared_ptr<Token> prev_token;
 
-    // Member variables
-    std::istream& m_Input;
-    std::string m_IdentifierStr;
-    int64_t m_NumVal;
-    std::string m_StringVal;
-    int m_LastChar = ' ';
-    std::map<std::string, int> m_Keywords;
+  char read_char();
+  double read_num(bool& is_float);
+  int read_num(IntBase base);
+  std::string read_string();
+  std::string read_identifier();
+  std::string read_operator();
+
+  const std::set<char> space_set = { ' ', '\t', '\n' };
+  const std::set<char> op_set = { '+', '-', '*', '/' , '<', '>', '=', ':' };
 };

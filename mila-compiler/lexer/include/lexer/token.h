@@ -6,12 +6,13 @@
 
 class Token {
 public:
+  virtual ~Token() = default;
   virtual TokenType type() const = 0;
-  virtual std::string to_string() const = 0;
+  // virtual std::string to_string() const = 0;
   virtual int precedence() const { return -1; }
 };
 
-class BasicToken : Token {
+class BasicToken : public Token {
 public:
   BasicToken(const TokenType type) : _type(type) {}
   TokenType type() const override { return _type; }
@@ -20,7 +21,7 @@ private:
   TokenType _type;
 };
 
-class OperatorToken : Token {
+class OperatorToken : public Token {
   public:
   OperatorToken(const TokenType type) : _type(type) {}
   TokenType type() const override { return _type; }
@@ -30,7 +31,7 @@ private:
   TokenType _type;
 };
 
-class IdentifierToken : Token {
+class IdentifierToken : public Token {
 public:
   IdentifierToken(const std::string& name) : _name(name) {}
   TokenType type() const override { return TOK_IDENTIFIER; }
@@ -40,7 +41,7 @@ private:
   std::string _name;
 };
 
-class IntToken : Token {
+class IntToken : public Token {
 public:
   IntToken(const int value) : _val(value) {}
   TokenType type() const override { return TOK_INTEGER; }
@@ -50,7 +51,7 @@ private:
   int _val;
 };
 
-class FloatToken : Token {
+class FloatToken : public Token {
 public:
   FloatToken(const double value) : _val(value) {}
   TokenType type() const override { return TOK_FLOAT; }
@@ -60,7 +61,7 @@ private:
   double _val;
 };
 
-class StringToken : Token {
+class StringToken : public Token {
 public:
   StringToken(std::string str) : _string(std::move(str)) {}
   TokenType type() const override { return TOK_STRING; }
