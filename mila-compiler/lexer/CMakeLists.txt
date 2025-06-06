@@ -14,4 +14,4 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCE_LIST})
 
 target_include_directories(lexer PUBLIC include)
 
-target_link_libraries(lexer PRIVATE exception)
+target_link_libraries(lexer PUBLIC exception)

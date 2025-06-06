@@ -9,8 +9,6 @@ add_executable(mila main.cpp)
 target_link_libraries(mila
   PRIVATE
     parser
-    lexer
-    exception
 )
 
 set_target_properties(mila PROPERTIES OUTPUT_NAME mila
