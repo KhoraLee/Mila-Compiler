@@ -1,5 +1,5 @@
 add_subdirectory(exception)
-#add_subdirectory(ast)
+add_subdirectory(ast)
 add_subdirectory(parser)
 add_subdirectory(lexer)
 
