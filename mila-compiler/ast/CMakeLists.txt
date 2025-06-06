@@ -3,14 +3,12 @@ include/ast/node.h
 include/ast/declaration.h
 include/ast/expression.h
 include/ast/statement.h
-
-src/node.cpp
 )
 
-add_library(ast STATIC ${SOURCE_LIST})
+add_library(ast INTERFACE ${SOURCE_LIST})
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCE_LIST})
 
-target_include_directories(ast PUBLIC include)
+target_include_directories(ast INTERFACE include)
 
-target_link_libraries(ast PUBLIC lexer)
+target_link_libraries(ast INTERFACE lexer)
