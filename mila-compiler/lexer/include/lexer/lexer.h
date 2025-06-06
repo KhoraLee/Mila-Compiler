@@ -10,12 +10,12 @@ class Lexer {
 public:
   explicit Lexer(std::istream& input);
   ~Lexer() = default;
-  std::shared_ptr<Token> next_token();
+  TokenPtr next_token();
 
 private:
   std::istream& stream;
   char current;
-  std::shared_ptr<Token> prev_token;
+  TokenPtr prev_token;
 
   char read_char();
   double read_num(bool& is_float);

@@ -12,6 +12,8 @@ public:
   virtual int precedence() const { return -1; }
 };
 
+using TokenPtr = std::shared_ptr<Token>;
+
 class BasicToken : public Token {
 public:
   BasicToken(const TokenType type) : _type(type) {}

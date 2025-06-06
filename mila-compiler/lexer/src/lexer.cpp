@@ -74,11 +74,11 @@ std::string Lexer::read_string() {
 }
 
 template<typename T, typename U>
-std::shared_ptr<Token> make_token(const U arg) {
+TokenPtr make_token(const U arg) {
   return std::static_pointer_cast<Token>(std::make_shared<T>(arg));
 }
 
-std::shared_ptr<Token> Lexer::next_token() {
+TokenPtr Lexer::next_token() {
   while(space_set.contains(current)) { // Remove ' ', '\t', '\n'
     read_char();
   }
