@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ast/type.h>
+#include <ast/types.h>
 
 class ASTVisitor;
 

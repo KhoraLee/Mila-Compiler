@@ -1,5 +1,5 @@
 set(SOURCE_LIST
-include/ast/type.h
+include/ast/types.h
 include/ast/node.h
 include/ast/declaration.h
 include/ast/expression.h

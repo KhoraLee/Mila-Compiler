@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ast/type.h>
+#include <ast/types.h>
 #include <ast/node.h>
 #include <ast/visitor.h>
 #include <ast/statement.h>
