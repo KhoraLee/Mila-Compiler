@@ -1,12 +1,6 @@
 #pragma once
 
-#include <string>
-
-struct SourceLocation {
-    int line;
-    int column;
-    SourceLocation(int l, int c) : line(l), column(c) {}
-};
+#include <ast/type.h>
 
 class ASTVisitor;
 
