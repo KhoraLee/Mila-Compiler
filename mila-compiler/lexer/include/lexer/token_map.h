@@ -71,6 +71,9 @@ const std::unordered_map<std::string, TokenType> operator_map = {
   // Logical
   { "and", TOK_AND },
   { "or", TOK_OR },
+
+  // Unary
+  { "not", TOK_NOT },
 };
 
 const std::unordered_map<TokenType, std::pair<int, bool>> operators = {

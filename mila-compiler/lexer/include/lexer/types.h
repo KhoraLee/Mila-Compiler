@@ -64,6 +64,9 @@ enum TokenType {
     
     // Operators - Assignment
     TOK_ASSIGN,
+
+    // Operator - Unary
+    TOK_NOT,
     
     // Delimiters
     TOK_SEMICOLON,
