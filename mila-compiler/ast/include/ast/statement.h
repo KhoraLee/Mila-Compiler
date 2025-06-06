@@ -79,6 +79,8 @@ private:
     std::vector<Stmt> _statements;
 };
 
+using Block = std::shared_ptr<BlockStmt>;
+
 class CallStmt : public Statement {
 public:
     CallStmt(std::string callee, std::vector<Expr> args, int line, int column)
