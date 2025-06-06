@@ -3,6 +3,7 @@
 #include <ast/type.h>
 #include <ast/node.h>
 #include <ast/visitor.h>
+#include <lexer/token.h>
 #include <string>
 #include <memory>
 #include <vector>
@@ -60,27 +61,27 @@ using Variable_E = std::shared_ptr<VariableExpr>;
 
 class BinaryExpr : public Expression {
 public:
-    BinaryExpr(Expr left, Expr right, std::string op, SourceLocation loc)
+    BinaryExpr(Expr left, Expr right, std::shared_ptr<OperatorToken> op, SourceLocation loc)
         : Expression(std::move(loc)), _left(std::move(left)), _right(std::move(right)), _op(std::move(op)) {}
     const Expr& left() const { return _left; }
     const Expr& right() const { return _right; }
-    const std::string& op() const { return _op; }
+    const std::shared_ptr<OperatorToken>& op() const { return _op; }
 private:
     Expr _left;
     Expr _right;
-    std::string _op;
+    std::shared_ptr<OperatorToken> _op;
 };
 
 using Binary_E = std::shared_ptr<BinaryExpr>;
 
 class UnaryExpr : public Expression {
 public:
-    UnaryExpr(std::string op, Expr expr, SourceLocation loc)
+    UnaryExpr(std::shared_ptr<OperatorToken> op, Expr expr, SourceLocation loc)
         : Expression(std::move(loc)), _op(std::move(op)), _expr(std::move(expr)) {}
     const Expr& expr() const { return _expr; }
-    const std::string& op() const { return _op; }
+    const std::shared_ptr<OperatorToken>& op() const { return _op; }
 private:
-    std::string _op;
+    std::shared_ptr<OperatorToken> _op;
     Expr _expr;
 };
 
