@@ -29,6 +29,8 @@ private:
     Expr _value;
 };
 
+using Assign_S = std::shared_ptr<AssignStmt>;
+
 class IfStmt : public Statement {
 public:
     IfStmt(Expr condition, Stmt thenBranch, Stmt elseBranch, SourceLocation loc)
@@ -42,6 +44,8 @@ private:
     Stmt _elseBranch;
 };
 
+using If_S = std::shared_ptr<IfStmt>;
+
 class WhileStmt : public Statement {
 public:
     WhileStmt(Expr condition, Stmt body, SourceLocation loc)
@@ -52,6 +56,8 @@ private:
     Expr _condition;
     Stmt _body;
 };
+
+using While_S = std::shared_ptr<WhileStmt>;
 
 class ForStmt : public Statement {
 public:
@@ -70,6 +76,8 @@ private:
     bool _downto;
 };
 
+using For_S = std::shared_ptr<ForStmt>;
+
 class BlockStmt : public Statement {
 public:
     BlockStmt(std::vector<Stmt> statements, SourceLocation loc)
@@ -79,7 +87,7 @@ private:
     std::vector<Stmt> _statements;
 };
 
-using Block = std::shared_ptr<BlockStmt>;
+using Block_S = std::shared_ptr<BlockStmt>;
 
 class CallStmt : public Statement {
 public:
@@ -92,13 +100,18 @@ private:
     std::vector<Expr> _args;
 };
 
-// TODO: Is it necessary?
+using Call_S = std::shared_ptr<CallStmt>;
+
 class BreakStmt : public Statement {
 public:
     BreakStmt(SourceLocation loc) : Statement(std::move(loc)) {}
 };
 
+using Break_S = std::shared_ptr<BreakStmt>;
+
 class ExitStmt : public Statement {
 public:
     ExitStmt(SourceLocation loc) : Statement(std::move(loc)) {}
 };
+
+using Exit_S = std::shared_ptr<ExitStmt>;

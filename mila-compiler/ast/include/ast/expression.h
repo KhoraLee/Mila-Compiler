@@ -26,6 +26,8 @@ private:
     int _value;
 };
 
+using Integer_E = std::shared_ptr<IntegerLiteral>;
+
 class FloatLiteral : public Expression {
 public:
     FloatLiteral(double value, SourceLocation loc) : Expression(std::move(loc)), _value(value) {}
@@ -33,6 +35,8 @@ public:
 private:
     double _value;
 };
+
+using Float_E = std::shared_ptr<FloatLiteral>;
 
 class StringLiteral : public Expression {
 public:
@@ -42,6 +46,8 @@ private:
     std::string _value;
 };
 
+using String_E = std::shared_ptr<StringLiteral>;
+
 class VariableExpr : public Expression {
 public:
     VariableExpr(std::string name, SourceLocation loc) : Expression(std::move(loc)), _name(std::move(name)) {}
@@ -49,6 +55,8 @@ public:
 private:
     std::string _name;
 };
+
+using Variable_E = std::shared_ptr<VariableExpr>;
 
 class BinaryExpr : public Expression {
 public:
@@ -63,6 +71,8 @@ private:
     std::string _op;
 };
 
+using Binary_E = std::shared_ptr<BinaryExpr>;
+
 class CallExpr : public Expression {
 public:
     CallExpr(std::string callee, std::vector<Expr> args, SourceLocation loc)
@@ -74,6 +84,8 @@ private:
     std::vector<Expr> _args;
 };
 
+using Call_E = std::shared_ptr<CallExpr>;
+
 class ParenExpr : public Expression {
 public:
     ParenExpr(Expr expr, SourceLocation loc)
@@ -82,6 +94,8 @@ public:
 private:
     Expr _expr;
 };
+
+using Paren_E = std::shared_ptr<ParenExpr>;
 
 class ArrayAccess : public Expression {
 public:
@@ -93,3 +107,5 @@ private:
     Expr _array;
     Expr _index;
 };
+
+using ArrayAccess_E = std::shared_ptr<ArrayAccess>;

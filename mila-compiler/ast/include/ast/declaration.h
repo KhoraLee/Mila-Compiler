@@ -33,7 +33,7 @@ protected:
     TokenType _type;
 };
 
-using Named = std::shared_ptr<NamedDecl>;
+using Named_D = std::shared_ptr<NamedDecl>;
 
 class ConstDecl : public NamedDecl {
 public:
@@ -48,10 +48,14 @@ private:
     Expr _value;
 };
 
+using Const_D = std::shared_ptr<ConstDecl>;
+
 class VarDecl : public NamedDecl {
 public:
     using NamedDecl::NamedDecl;
 };
+
+using Var_D = std::shared_ptr<VarDecl>;
 
 class ArrayDecl : public NamedDecl {
 public:
@@ -67,11 +71,13 @@ private:
     bool _isConst;
 };
 
+using Array_D = std::shared_ptr<ArrayDecl>;
+
 // FunctionDecl includes Procedures (returnType == TokenType::TOK_VOID).
 class FunctionDecl : public Declaration {
 public:
     FunctionDecl(std::string name, ParamList params, TokenType returnType, 
-                std::vector<Named> consts, std::vector<Named> vars, Block body, 
+                std::vector<Named_D> consts, std::vector<Named_D> vars, Block_S body, 
                 SourceLocation loc)
         : Declaration(std::move(loc)), _name(std::move(name)), _params(std::move(params)), 
           _returnType(returnType), _consts(std::move(consts)), _vars(std::move(vars)), _body(std::move(body)) {}
@@ -79,35 +85,37 @@ public:
     const std::string& name() const { return _name; }
     const ParamList& params() const { return _params; }
     TokenType returnType() const { return _returnType; }
-    const std::vector<Named>& consts() const { return _consts; }
-    const std::vector<Named>& vars() const { return _vars; }
-    const Block& body() const { return _body; }
+    const std::vector<Named_D>& consts() const { return _consts; }
+    const std::vector<Named_D>& vars() const { return _vars; }
+    const Block_S& body() const { return _body; }
 private:
     std::string _name;
     ParamList _params;
     TokenType _returnType;
-    std::vector<Named> _consts;
-    std::vector<Named> _vars;
-    Block _body;
+    std::vector<Named_D> _consts;
+    std::vector<Named_D> _vars;
+    Block_S _body;
 };
 
-using Function = std::shared_ptr<FunctionDecl>;
+using Function_D = std::shared_ptr<FunctionDecl>;
 
 class ProgramDecl : public Declaration {
 public:
-    ProgramDecl(std::string name, std::vector<Named> consts, std::vector<Named> vars,
-                std::vector<Function> functions, Block body, SourceLocation loc)
+    ProgramDecl(std::string name, std::vector<Named_D> consts, std::vector<Named_D> vars,
+                std::vector<Function_D> functions, Block_S body, SourceLocation loc)
         : Declaration(std::move(loc)), _name(std::move(name)), _consts(std::move(consts)),
          _vars(std::move(vars)), _funcs(std::move(functions)), _body(std::move(body)) {}
     const std::string& name() const { return _name; }
-    const std::vector<Named>& consts() const { return _consts; }
-    const std::vector<Named>& vars() const { return _vars; }
-    const std::vector<Function>& functions() const { return _funcs; }
-    const Block& body() const { return _body; }
+    const std::vector<Named_D>& consts() const { return _consts; }
+    const std::vector<Named_D>& vars() const { return _vars; }
+    const std::vector<Function_D>& functions() const { return _funcs; }
+    const Block_S& body() const { return _body; }
 private:
     std::string _name;
-    std::vector<Named> _consts;
-    std::vector<Named> _vars;
-    std::vector<Function> _funcs;
-    Block _body;
+    std::vector<Named_D> _consts;
+    std::vector<Named_D> _vars;
+    std::vector<Function_D> _funcs;
+    Block_S _body;
 };
+
+using Program_D = std::shared_ptr<ProgramDecl>;
