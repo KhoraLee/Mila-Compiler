@@ -73,6 +73,19 @@ private:
 
 using Binary_E = std::shared_ptr<BinaryExpr>;
 
+class UnaryExpr : public Expression {
+public:
+    UnaryExpr(std::string op, Expr expr, SourceLocation loc)
+        : Expression(std::move(loc)), _op(std::move(op)), _expr(std::move(expr)) {}
+    const Expr& expr() const { return _expr; }
+    const std::string& op() const { return _op; }
+private:
+    std::string _op;
+    Expr _expr;
+};
+
+using Unary_E = std::shared_ptr<UnaryExpr>;
+
 class CallExpr : public Expression {
 public:
     CallExpr(std::string callee, std::vector<Expr> args, SourceLocation loc)
