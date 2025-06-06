@@ -16,7 +16,7 @@ public:
     Statement(int line, int column) : ASTNode(line, column) {}
 };
 
-typedef std::shared_ptr<Statement> Stmt;
+using Stmt = std::shared_ptr<Statement>;
 
 class AssignStmt : public Statement {
 public:

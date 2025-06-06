@@ -15,7 +15,7 @@ public:
     Expression(int line, int column) : ASTNode(line, column) {}
 };
 
-typedef std::shared_ptr<Expression> Expr;
+using Expr = std::shared_ptr<Expression>;
 
 class IntegerLiteral : public Expression {
 public:
