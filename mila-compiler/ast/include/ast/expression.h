@@ -9,4 +9,5 @@ public:
     virtual void accept(ASTVisitor& visitor) override {
         visitor.visitExpression(this);
     }
+    Expression(int line, int column) : ASTNode(line, column) {}
 };
