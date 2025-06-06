@@ -13,15 +13,15 @@ public:
     virtual void accept(ASTVisitor& visitor) override {
         visitor.visitStatement(this);
     }
-    Statement(int line, int column) : ASTNode(line, column) {}
+    Statement(SourceLocation loc) : ASTNode(std::move(loc)) {}
 };
 
 using Stmt = std::shared_ptr<Statement>;
 
 class AssignStmt : public Statement {
 public:
-    AssignStmt(std::string target, Expr value, int line, int column)
-        : Statement(line, column), _target(std::move(target)), _value(std::move(value)) {}
+    AssignStmt(std::string target, Expr value, SourceLocation loc)
+        : Statement(std::move(loc)), _target(std::move(target)), _value(std::move(value)) {}
     const std::string& target() const { return _target; }
     const Expr& value() const { return _value; }
 private:
@@ -31,8 +31,8 @@ private:
 
 class IfStmt : public Statement {
 public:
-    IfStmt(Expr condition, Stmt thenBranch, Stmt elseBranch, int line, int column)
-        : Statement(line, column), _condition(std::move(condition)), _thenBranch(std::move(thenBranch)), _elseBranch(std::move(elseBranch)) {}
+    IfStmt(Expr condition, Stmt thenBranch, Stmt elseBranch, SourceLocation loc)
+        : Statement(std::move(loc)), _condition(std::move(condition)), _thenBranch(std::move(thenBranch)), _elseBranch(std::move(elseBranch)) {}
     const Expr& condition() const { return _condition; }
     const Stmt& thenBranch() const { return _thenBranch; }
     const Stmt& elseBranch() const { return _elseBranch; }
@@ -44,8 +44,8 @@ private:
 
 class WhileStmt : public Statement {
 public:
-    WhileStmt(Expr condition, Stmt body, int line, int column)
-        : Statement(line, column), _condition(std::move(condition)), _body(std::move(body)) {}
+    WhileStmt(Expr condition, Stmt body, SourceLocation loc)
+        : Statement(std::move(loc)), _condition(std::move(condition)), _body(std::move(body)) {}
     const Expr& condition() const { return _condition; }
     const Stmt& body() const { return _body; }
 private:
@@ -55,8 +55,8 @@ private:
 
 class ForStmt : public Statement {
 public:
-    ForStmt(std::string loopVar, Expr start, Expr end, Stmt body, bool downto, int line, int column)
-        : Statement(line, column), _loopVar(std::move(loopVar)), _start(std::move(start)), _end(std::move(end)), _body(std::move(body)), _downto(downto) {}
+    ForStmt(std::string loopVar, Expr start, Expr end, Stmt body, bool downto, SourceLocation loc)
+        : Statement(std::move(loc)), _loopVar(std::move(loopVar)), _start(std::move(start)), _end(std::move(end)), _body(std::move(body)), _downto(downto) {}
     const std::string& loopVar() const { return _loopVar; }
     const Expr& start() const { return _start; }
     const Expr& end() const { return _end; }
@@ -72,8 +72,8 @@ private:
 
 class BlockStmt : public Statement {
 public:
-    BlockStmt(std::vector<Stmt> statements, int line, int column)
-        : Statement(line, column), _statements(std::move(statements)) {}
+    BlockStmt(std::vector<Stmt> statements, SourceLocation loc)
+        : Statement(std::move(loc)), _statements(std::move(statements)) {}
     const std::vector<Stmt>& statements() const { return _statements; }
 private:
     std::vector<Stmt> _statements;
@@ -83,8 +83,8 @@ using Block = std::shared_ptr<BlockStmt>;
 
 class CallStmt : public Statement {
 public:
-    CallStmt(std::string callee, std::vector<Expr> args, int line, int column)
-        : Statement(line, column), _callee(std::move(callee)), _args(std::move(args)) {}
+    CallStmt(std::string callee, std::vector<Expr> args, SourceLocation loc)
+        : Statement(std::move(loc)), _callee(std::move(callee)), _args(std::move(args)) {}
     const std::string& callee() const { return _callee; }
     const std::vector<Expr>& args() const { return _args; }
 private:
@@ -95,10 +95,10 @@ private:
 // TODO: Is it necessary?
 class BreakStmt : public Statement {
 public:
-    BreakStmt(int line, int column) : Statement(line, column) {}
+    BreakStmt(SourceLocation loc) : Statement(std::move(loc)) {}
 };
 
 class ExitStmt : public Statement {
 public:
-    ExitStmt(int line, int column) : Statement(line, column) {}
+    ExitStmt(SourceLocation loc) : Statement(std::move(loc)) {}
 };

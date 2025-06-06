@@ -15,13 +15,13 @@ public:
     virtual void accept(ASTVisitor& visitor) override {
         visitor.visitDeclaration(this);
     }
-    Declaration(int line, int column) : ASTNode(line, column) {}
+    Declaration(SourceLocation loc) : ASTNode(std::move(loc)) {}
 };
 
 class NamedDecl : public Declaration {
 public:
-    NamedDecl(std::string name, TokenType type, int line, int column)
-        : Declaration(line, column), _name(std::move(name)), _type(type) {}
+    NamedDecl(std::string name, TokenType type, SourceLocation loc)
+        : Declaration(std::move(loc)), _name(std::move(name)), _type(type) {}
 
     virtual bool isConst() const { return false; }
     virtual bool isArray() const { return false; }
@@ -37,8 +37,8 @@ using Named = std::shared_ptr<NamedDecl>;
 
 class ConstDecl : public NamedDecl {
 public:
-    ConstDecl(std::string name, Expr value, int line, int column)
-        : NamedDecl(std::move(name), TokenType::TOK_VOID, line, column),
+    ConstDecl(std::string name, Expr value, SourceLocation loc)
+        : NamedDecl(std::move(name), TokenType::TOK_VOID, std::move(loc)),
           _value(std::move(value)) {}
 
     const Expr& value() const { return _value; }
@@ -55,8 +55,8 @@ public:
 
 class ArrayDecl : public NamedDecl {
 public:
-    ArrayDecl(std::string name, TokenType type, int start, int end, bool isConst, int line, int column)
-        : NamedDecl(std::move(name), type, line, column), _start(start), _end(end), _isConst(isConst) {}
+    ArrayDecl(std::string name, TokenType type, int start, int end, bool isConst, SourceLocation loc)
+        : NamedDecl(std::move(name), type, std::move(loc)), _start(start), _end(end), _isConst(isConst) {}
     int start() const { return _start; }
     int end() const { return _end; }
     bool isArray() const override { return true; }
@@ -72,8 +72,8 @@ class FunctionDecl : public Declaration {
 public:
     FunctionDecl(std::string name, ParamList params, TokenType returnType, 
                 std::vector<Named> consts, std::vector<Named> vars, Block body, 
-                int line, int column)
-        : Declaration(line, column), _name(std::move(name)), _params(std::move(params)), 
+                SourceLocation loc)
+        : Declaration(std::move(loc)), _name(std::move(name)), _params(std::move(params)), 
           _returnType(returnType), _consts(std::move(consts)), _vars(std::move(vars)), _body(std::move(body)) {}
     
     const std::string& name() const { return _name; }
@@ -96,8 +96,8 @@ using Function = std::shared_ptr<FunctionDecl>;
 class ProgramDecl : public Declaration {
 public:
     ProgramDecl(std::string name, std::vector<Named> consts, std::vector<Named> vars,
-                std::vector<Function> functions, Block body, int line, int column)
-        : Declaration(line, column), _name(std::move(name)), _consts(std::move(consts)),
+                std::vector<Function> functions, Block body, SourceLocation loc)
+        : Declaration(std::move(loc)), _name(std::move(name)), _consts(std::move(consts)),
          _vars(std::move(vars)), _funcs(std::move(functions)), _body(std::move(body)) {}
     const std::string& name() const { return _name; }
     const std::vector<Named>& consts() const { return _consts; }

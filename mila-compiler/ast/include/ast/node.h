@@ -8,6 +8,8 @@ class ASTNode {
 public:
     virtual ~ASTNode() = default;
     virtual void accept(ASTVisitor& visitor) = 0;
-    SourceLocation location;
-    ASTNode(int line, int column) : location(line, column) {}
+    SourceLocation location() const { return loc; }
+protected:
+    SourceLocation loc;
+    ASTNode(SourceLocation loc) : loc(std::move(loc)) {}
 };
