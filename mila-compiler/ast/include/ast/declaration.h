@@ -18,6 +18,8 @@ public:
     Declaration(SourceLocation loc) : ASTNode(std::move(loc)) {}
 };
 
+using Decl = std::shared_ptr<Declaration>;
+
 class NamedDecl : public Declaration {
 public:
     NamedDecl(std::string name, TokenType type, SourceLocation loc)
