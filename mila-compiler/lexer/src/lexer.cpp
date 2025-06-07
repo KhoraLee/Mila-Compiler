@@ -1,4 +1,4 @@
-#include <exception/exception.h>
+#include <exception/lexer_exception.h>
 #include <lexer/lexer.h>
 #include <lexer/token_map.h>
 
@@ -25,7 +25,7 @@ double Lexer::read_num(bool& is_float) {
   while (std::isdigit(read_char()) || current == '.') {
     if (current == '.') {
       if (dot_found) {
-        throw InvalidSymbolException("invalid suffix on floating constant");
+        throw InvalidNumberException(_loc);
       }
       dot_found = true;
       is_float = true;
@@ -76,7 +76,8 @@ std::string Lexer::read_operator() {
 }
 
 std::string Lexer::read_string() {
-  throw Exception("Not yet implemented");
+  // UnterminatedStringException
+  throw InvalidSymbolException(_loc, '"');
 }
 
 template<typename T, typename U>
@@ -140,7 +141,7 @@ TokenPtr Lexer::next_token() {
     if (it2 != symbol_map.end() && op.length() == 1) {
       return make_token<BasicToken>(it2->second, tok_start);
     }
-    throw InvalidSymbolException("Invalid symbol");
+    throw InvalidSymbolException(_loc, op[0]);
   }  
   default: {
     auto it = symbol_map.find(current);
@@ -148,7 +149,7 @@ TokenPtr Lexer::next_token() {
       read_char();
       return make_token<OperatorToken>(it->second, tok_start);
     } else {
-      throw InvalidSymbolException("Invalid symbol");
+      throw InvalidSymbolException(_loc, current);
     }
   }
   }
