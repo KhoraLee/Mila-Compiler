@@ -61,7 +61,7 @@ using Variable_E = std::shared_ptr<VariableExpr>;
 
 class BinaryExpr : public Expression {
 public:
-    BinaryExpr(Expr left, Expr right, std::shared_ptr<OperatorToken> op, SourceLocation loc)
+    BinaryExpr(Expr left, std::shared_ptr<OperatorToken> op, Expr right, SourceLocation loc)
         : Expression(std::move(loc)), _left(std::move(left)), _right(std::move(right)), _op(std::move(op)) {}
     const Expr& left() const { return _left; }
     const Expr& right() const { return _right; }
