@@ -3,6 +3,12 @@
 #include <set>
 #include <string>
 
+struct SourceLocation {
+    int line;
+    int column;
+    SourceLocation(int l, int c) : line(l), column(c) {}
+};
+
 /*
  * Lexer returns tokens [0-255] if it is an unknown character, otherwise one of these for known things.
  * Here are all valid tokens:

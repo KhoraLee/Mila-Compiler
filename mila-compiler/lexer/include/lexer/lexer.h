@@ -24,6 +24,8 @@ private:
   std::string read_identifier();
   std::string read_operator();
 
+  SourceLocation _loc{1, 1};
+
   const std::set<char> space_set = { ' ', '\t', '\n' };
   const std::set<char> op_set = { '+', '-', '*', '/' , '<', '>', '=', ':' };
 };
