@@ -1,6 +1,7 @@
 set(SOURCE_LIST
 include/exception/exception.h
 include/exception/lexer_exception.h
+include/exception/parser_exception.h
 )
 
 add_library(exception INTERFACE ${SOURCE_LIST})
