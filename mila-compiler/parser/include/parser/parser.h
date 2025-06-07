@@ -34,12 +34,12 @@ private:
 
     // Statement
     Stmt statement();
-    Assign_S assignment();
+    Assign_S assignment(const std::string& target);
     If_S ifStatement();
     While_S whileStatement();
     For_S forStatement();
     Block_S blockStatement();
-    Call_S callStatement();
+    Call_S callStatement(const std::string& callee);
     Break_S breakStatement();
     Exit_S exitStatement();
 
