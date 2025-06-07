@@ -1,38 +1,57 @@
-#ifndef PJPPROJECT_PARSER_HPP
-#define PJPPROJECT_PARSER_HPP
+#pragma once
 
-#include <llvm/ADT/APFloat.h>
-#include <llvm/ADT/STLExtras.h>
-#include <llvm/IR/BasicBlock.h>
-#include <llvm/IR/Constants.h>
-#include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/Function.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/LegacyPassManager.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/Type.h>
-#include <llvm/IR/Verifier.h>
-
+#include <ast/node.h>
+#include <ast/expression.h>
+#include <ast/statement.h>
+#include <ast/declaration.h>
+#include <exception/parser_exception.h>
 #include <lexer/lexer.h>
+#include <lexer/token.h>
+
+#include <memory>
+#include <string>
 
 class Parser {
 public:
-    Parser();
-    ~Parser() = default;
-
-    bool Parse();                    // parse
-    const llvm::Module& Generate();  // generate
+    explicit Parser(Lexer& lexer);
+    Program_D parse();
 
 private:
-    int getNextToken();
+    // Token management
+    void advance();
+    bool check(TokenType type) const;
+    bool match(TokenType type);
+    void consume(TokenType type, const std::string& message);
+    bool isAtEnd() const;
 
-    Lexer m_Lexer;                   // lexer is used to read tokens
-    int CurTok;                      // to keep the current token
+    // Expression
+    Expr expression();
+    Expr simpleExpression();
+    Expr term();
+    Expr factor();
+    Expr primary();
+    Expr variableOrCall();
 
-    llvm::LLVMContext MilaContext;   // llvm context
-    llvm::IRBuilder<> MilaBuilder;   // llvm builder
-    llvm::Module MilaModule;         // llvm module
+    // Statement
+    Stmt statement();
+    Assign_S assignment();
+    If_S ifStatement();
+    While_S whileStatement();
+    For_S forStatement();
+    Block_S blockStatement();
+    Call_S callStatement();
+    Break_S breakStatement();
+    Exit_S exitStatement();
+
+    // Declaration
+    Decl declaration();
+    Const_D constDeclaration();
+    Var_D varDeclaration();
+    Array_D arrayDeclaration();
+    Function_D functionDeclaration();
+    Program_D programDeclaration();
+
+    Lexer& _lexer;
+    TokenPtr _current;
+    TokenPtr _previous;
 };
-
-#endif //PJPPROJECT_PARSER_HPP
