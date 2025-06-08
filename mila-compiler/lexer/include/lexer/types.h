@@ -29,6 +29,8 @@ enum TokenType {
     TOK_CONST,
     TOK_FUNCTION,
     TOK_PROCEDURE,
+    TOK_ARRAY,
+    TOK_OF,
     
     // Keywords - Control flow
     TOK_IF,

@@ -28,6 +28,8 @@ const std::unordered_map<std::string, TokenType> keyword_map = {
   { "const", TOK_CONST },
   { "function", TOK_FUNCTION },
   { "procedure", TOK_PROCEDURE },
+  { "array", TOK_ARRAY },
+  { "of", TOK_OF },
 
   // Keywords - Control flow
   { "if", TOK_IF },
