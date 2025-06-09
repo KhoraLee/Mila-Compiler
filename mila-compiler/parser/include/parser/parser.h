@@ -44,10 +44,8 @@ private:
     Exit_S exitStatement();
 
     // Declaration
-    Decl declaration();
     Const_D constDeclaration();
-    Var_D varDeclaration();
-    Array_D arrayDeclaration();
+    std::vector<Named_D> varDeclarations();
     Function_D functionDeclaration();
     Program_D programDeclaration();
 
