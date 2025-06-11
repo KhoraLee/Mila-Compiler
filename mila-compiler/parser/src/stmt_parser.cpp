@@ -13,6 +13,11 @@ Stmt Parser::statement() {
         auto token = std::static_pointer_cast<IdentifierToken>(_current);
         advance();
         
+        // Check for array indexing
+        if (match(TokenType::TOK_OPEN_BRACKET)) {
+            return arrayAssign(token->name());
+        }
+        
         // Check if it's a function call
         if (match(TokenType::TOK_OPEN_PAREN)) {
             return callStatement(token->name());
@@ -30,6 +35,15 @@ Assign_S Parser::assignment(const std::string& target) {
     Expr value = expression();
     consume(TokenType::TOK_SEMICOLON, "Expected ';' after assignment");
     return std::make_shared<AssignStmt>(target, value, _previous->location());
+}
+
+ArrayAssign_S Parser::arrayAssign(const std::string& array) {
+    auto index = expression();
+    consume(TokenType::TOK_CLOSE_BRACKET, "Expected ']' after array index");
+    consume(TokenType::TOK_ASSIGN, "Expected ':=' after array indexing");
+    auto value = expression();
+    consume(TokenType::TOK_SEMICOLON, "Expected ';' after array assignment");
+    return std::make_shared<ArrayAssignStmt>(array, index, value, _previous->location());
 }
 
 If_S Parser::ifStatement() {

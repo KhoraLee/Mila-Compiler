@@ -35,6 +35,7 @@ private:
     // Statement
     Stmt statement();
     Assign_S assignment(const std::string& target);
+    ArrayAssign_S arrayAssign(const std::string& array);
     If_S ifStatement();
     While_S whileStatement();
     For_S forStatement();

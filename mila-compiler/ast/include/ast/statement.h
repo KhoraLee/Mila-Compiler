@@ -31,6 +31,17 @@ private:
 
 using Assign_S = std::shared_ptr<AssignStmt>;
 
+class ArrayAssignStmt : public AssignStmt {
+public:
+    ArrayAssignStmt(std::string array, Expr index, Expr value, SourceLocation loc)
+        : AssignStmt(std::move(array), std::move(value), std::move(loc)), _index(std::move(index)) {}
+    const Expr& index() const { return _index; }
+private:
+    Expr _index;
+};
+
+using ArrayAssign_S = std::shared_ptr<ArrayAssignStmt>;
+
 class IfStmt : public Statement {
 public:
     IfStmt(Expr condition, Stmt thenBranch, Stmt elseBranch, SourceLocation loc)
