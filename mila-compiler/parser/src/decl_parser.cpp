@@ -102,7 +102,7 @@ Function_D Parser::functionDeclaration() {
             }
             
             params.push_back({paramName, paramType});
-        } while (match(TokenType::TOK_COMMA));
+        } while (match(TokenType::TOK_SEMICOLON));
     }
     consume(TokenType::TOK_CLOSE_PAREN, "Expected ')' after parameters");
     
@@ -126,6 +126,7 @@ Function_D Parser::functionDeclaration() {
     // Parse const declarations
     if (match(TokenType::TOK_CONST)) {
         do {
+            match(TokenType::TOK_CONST);
             consts.push_back(constDeclaration());
         } while (check(TokenType::TOK_CONST) || check(TokenType::TOK_IDENTIFIER));
     }
@@ -133,6 +134,7 @@ Function_D Parser::functionDeclaration() {
     // Parse var declarations
     if (match(TokenType::TOK_VAR)) {
         do {
+            match(TokenType::TOK_VAR);
             auto newVars = varDeclarations();
             vars.insert(vars.end(), newVars.begin(), newVars.end());
         } while (check(TokenType::TOK_VAR) || check(TokenType::TOK_IDENTIFIER));
@@ -141,8 +143,6 @@ Function_D Parser::functionDeclaration() {
     // Parse function body
     consume(TokenType::TOK_BEGIN, "Expected 'begin' for function body");
     Block_S body = blockStatement();
-    consume(TokenType::TOK_END, "Expected 'end' after function body");
-    consume(TokenType::TOK_SEMICOLON, "Expected ';' after function end");
     
     return std::make_shared<FunctionDecl>(name, params, returnType, consts, vars, body, _previous->location());
 }
@@ -152,7 +152,13 @@ Program_D Parser::programDeclaration() {
     consume(TokenType::TOK_IDENTIFIER, "Expected program name");
     auto name = std::static_pointer_cast<IdentifierToken>(_previous)->name();
     consume(TokenType::TOK_SEMICOLON, "Expected ';' after program name");
-    
+
+    // Parse function declarations
+    std::vector<Function_D> functions;
+    while (match(TokenType::TOK_FUNCTION) || match(TokenType::TOK_PROCEDURE)) {
+        functions.push_back(functionDeclaration());
+    }
+
     // Parse const and var declarations
     std::vector<Named_D> consts;
     std::vector<Named_D> vars;
@@ -160,6 +166,7 @@ Program_D Parser::programDeclaration() {
     // Parse const declarations
     if (match(TokenType::TOK_CONST)) {
         do {
+            match(TokenType::TOK_CONST);
             consts.push_back(constDeclaration());
         } while (check(TokenType::TOK_CONST) || check(TokenType::TOK_IDENTIFIER));
     }
@@ -167,21 +174,15 @@ Program_D Parser::programDeclaration() {
     // Parse var declarations
     if (match(TokenType::TOK_VAR)) {
         do {
+            match(TokenType::TOK_VAR);
             auto newVars = varDeclarations();
             vars.insert(vars.end(), newVars.begin(), newVars.end());
         } while (check(TokenType::TOK_VAR) || check(TokenType::TOK_IDENTIFIER));
     }
 
-    // Parse function declarations
-    std::vector<Function_D> functions;
-    while (match(TokenType::TOK_FUNCTION) || match(TokenType::TOK_PROCEDURE)) {
-        functions.push_back(functionDeclaration());
-    }
-    
     // Parse program body
     consume(TokenType::TOK_BEGIN, "Expected 'begin' for program body");
-    Block_S body = blockStatement();
-    consume(TokenType::TOK_END, "Expected 'end' after program body");
+    Block_S body = blockStatement(true);
     consume(TokenType::TOK_DOT, "Expected '.' after program end");
 
     

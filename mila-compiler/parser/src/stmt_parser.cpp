@@ -89,7 +89,7 @@ For_S Parser::forStatement() {
     return std::make_shared<ForStmt>(loopVar, start, end, body, downto, _previous->location());
 }
 
-Block_S Parser::blockStatement() {
+Block_S Parser::blockStatement(bool program) {
     std::vector<Stmt> statements;
     
     while (!check(TokenType::TOK_END) && !isAtEnd()) {
@@ -97,6 +97,8 @@ Block_S Parser::blockStatement() {
     }
     
     consume(TokenType::TOK_END, "Expected 'end' after block");
+    if (!program)
+        consume(TokenType::TOK_SEMICOLON, "Expected ';' after block end");
     return std::make_shared<BlockStmt>(statements, _previous->location());
 }
 

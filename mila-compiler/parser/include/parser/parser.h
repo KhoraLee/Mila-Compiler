@@ -39,7 +39,7 @@ private:
     If_S ifStatement();
     While_S whileStatement();
     For_S forStatement();
-    Block_S blockStatement();
+    Block_S blockStatement(bool program = false);
     Call_S callStatement(const std::string& callee);
     Break_S breakStatement();
     Exit_S exitStatement();
