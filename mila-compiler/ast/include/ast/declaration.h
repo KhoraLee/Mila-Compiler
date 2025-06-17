@@ -25,7 +25,6 @@ public:
     virtual bool isArray() const { return false; }
     const std::string& name() const { return _name; }
     TokenType type() const { return _type; }
-    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 protected:
     std::string _name;
     TokenType _type;
@@ -51,6 +50,7 @@ using Const_D = std::shared_ptr<ConstDecl>;
 class VarDecl : public NamedDecl {
 public:
     using NamedDecl::NamedDecl;
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 };
 
 using Var_D = std::shared_ptr<VarDecl>;

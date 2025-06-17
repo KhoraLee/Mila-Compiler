@@ -20,7 +20,6 @@ class CallStmt;
 class BreakStmt;
 class ExitStmt;
 
-class NamedDecl;
 class ConstDecl;
 class VarDecl;
 class ArrayDecl;
@@ -54,7 +53,6 @@ public:
     virtual void visit(ExitStmt* stmt) = 0;
 
     // Declaration
-    virtual void visit(NamedDecl* decl) = 0;
     virtual void visit(ConstDecl* decl) = 0;
     virtual void visit(VarDecl* decl) = 0;
     virtual void visit(ArrayDecl* decl) = 0;

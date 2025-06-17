@@ -51,7 +51,6 @@ public:
     void visit(ExitStmt* stmt) override;
 
     // Declaration
-    void visit(NamedDecl* decl) override;
     void visit(ConstDecl* decl) override;
     void visit(VarDecl* decl) override;
     void visit(ArrayDecl* decl) override;
