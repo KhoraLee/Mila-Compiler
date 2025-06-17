@@ -9,11 +9,7 @@
 
 class Statement : public ASTNode {
 public:
-    virtual ~Statement() = default;
-    virtual void accept(ASTVisitor& visitor) override {
-        visitor.visitStatement(this);
-    }
-    Statement(SourceLocation loc) : ASTNode(std::move(loc)) {}
+    using ASTNode::ASTNode;
 };
 
 using Stmt = std::shared_ptr<Statement>;
@@ -24,6 +20,7 @@ public:
         : Statement(std::move(loc)), _target(std::move(target)), _value(std::move(value)) {}
     const std::string& target() const { return _target; }
     const Expr& value() const { return _value; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     std::string _target;
     Expr _value;
@@ -36,6 +33,7 @@ public:
     ArrayAssignStmt(std::string array, Expr index, Expr value, SourceLocation loc)
         : AssignStmt(std::move(array), std::move(value), std::move(loc)), _index(std::move(index)) {}
     const Expr& index() const { return _index; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     Expr _index;
 };
@@ -49,6 +47,7 @@ public:
     const Expr& condition() const { return _condition; }
     const Stmt& thenBranch() const { return _thenBranch; }
     const Stmt& elseBranch() const { return _elseBranch; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     Expr _condition;
     Stmt _thenBranch;
@@ -63,6 +62,7 @@ public:
         : Statement(std::move(loc)), _condition(std::move(condition)), _body(std::move(body)) {}
     const Expr& condition() const { return _condition; }
     const Stmt& body() const { return _body; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     Expr _condition;
     Stmt _body;
@@ -79,6 +79,7 @@ public:
     const Expr& end() const { return _end; }
     const Stmt& body() const { return _body; }
     bool downto() const { return _downto; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     std::string _loopVar;
     Expr _start;
@@ -94,6 +95,7 @@ public:
     BlockStmt(std::vector<Stmt> statements, SourceLocation loc)
         : Statement(std::move(loc)), _statements(std::move(statements)) {}
     const std::vector<Stmt>& statements() const { return _statements; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     std::vector<Stmt> _statements;
 };
@@ -106,6 +108,7 @@ public:
         : Statement(std::move(loc)), _callee(std::move(callee)), _args(std::move(args)) {}
     const std::string& callee() const { return _callee; }
     const std::vector<Expr>& args() const { return _args; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     std::string _callee;
     std::vector<Expr> _args;
@@ -116,6 +119,7 @@ using Call_S = std::shared_ptr<CallStmt>;
 class BreakStmt : public Statement {
 public:
     BreakStmt(SourceLocation loc) : Statement(std::move(loc)) {}
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 };
 
 using Break_S = std::shared_ptr<BreakStmt>;
@@ -123,6 +127,7 @@ using Break_S = std::shared_ptr<BreakStmt>;
 class ExitStmt : public Statement {
 public:
     ExitStmt(SourceLocation loc) : Statement(std::move(loc)) {}
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 };
 
 using Exit_S = std::shared_ptr<ExitStmt>;

@@ -10,11 +10,7 @@
 
 class Expression : public ASTNode {
 public:
-    virtual ~Expression() = default;
-    virtual void accept(ASTVisitor& visitor) override {
-        visitor.visitExpression(this);
-    }
-    Expression(SourceLocation loc) : ASTNode(std::move(loc)) {}
+    using ASTNode::ASTNode;
 };
 
 using Expr = std::shared_ptr<Expression>;
@@ -23,6 +19,7 @@ class IntegerLiteral : public Expression {
 public:
     IntegerLiteral(int value, SourceLocation loc) : Expression(std::move(loc)), _value(value) {}
     int value() const { return _value; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     int _value;
 };
@@ -33,6 +30,7 @@ class FloatLiteral : public Expression {
 public:
     FloatLiteral(double value, SourceLocation loc) : Expression(std::move(loc)), _value(value) {}
     double value() const { return _value; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     double _value;
 };
@@ -43,6 +41,7 @@ class StringLiteral : public Expression {
 public:
     StringLiteral(std::string value, SourceLocation loc) : Expression(std::move(loc)), _value(std::move(value)) {}
     const std::string& value() const { return _value; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     std::string _value;
 };
@@ -53,6 +52,7 @@ class VariableExpr : public Expression {
 public:
     VariableExpr(std::string name, SourceLocation loc) : Expression(std::move(loc)), _name(std::move(name)) {}
     const std::string& name() const { return _name; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     std::string _name;
 };
@@ -66,6 +66,7 @@ public:
     const Expr& left() const { return _left; }
     const Expr& right() const { return _right; }
     const std::shared_ptr<OperatorToken>& op() const { return _op; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     Expr _left;
     Expr _right;
@@ -80,6 +81,7 @@ public:
         : Expression(std::move(loc)), _op(std::move(op)), _expr(std::move(expr)) {}
     const Expr& expr() const { return _expr; }
     const std::shared_ptr<OperatorToken>& op() const { return _op; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     std::shared_ptr<OperatorToken> _op;
     Expr _expr;
@@ -93,6 +95,7 @@ public:
         : Expression(std::move(loc)), _callee(std::move(callee)), _args(std::move(args)) {}
     const std::string& callee() const { return _callee; }
     const std::vector<Expr>& args() const { return _args; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     std::string _callee;
     std::vector<Expr> _args;
@@ -105,6 +108,7 @@ public:
     ParenExpr(Expr expr, SourceLocation loc)
         : Expression(std::move(loc)), _expr(std::move(expr)) {}
     const Expr& expr() const { return _expr; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     Expr _expr;
 };
@@ -117,6 +121,7 @@ public:
         : Expression(std::move(loc)), _array(std::move(array)), _index(std::move(index)) {}
     const Expr& array() const { return _array; }
     const Expr& index() const { return _index; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     Expr _array;
     Expr _index;

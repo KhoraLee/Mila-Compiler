@@ -11,11 +11,7 @@
 
 class Declaration : public ASTNode {
 public:
-    virtual ~Declaration() = default;
-    virtual void accept(ASTVisitor& visitor) override {
-        visitor.visitDeclaration(this);
-    }
-    Declaration(SourceLocation loc) : ASTNode(std::move(loc)) {}
+    using ASTNode::ASTNode;
 };
 
 using Decl = std::shared_ptr<Declaration>;
@@ -29,7 +25,7 @@ public:
     virtual bool isArray() const { return false; }
     const std::string& name() const { return _name; }
     TokenType type() const { return _type; }
-
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 protected:
     std::string _name;
     TokenType _type;
@@ -45,7 +41,7 @@ public:
 
     const Expr& value() const { return _value; }
     bool isConst() const override { return true; }
-
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     Expr _value;
 };
@@ -67,6 +63,7 @@ public:
     int end() const { return _end; }
     bool isArray() const override { return true; }
     bool isConst() const override { return _isConst; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     int _start;
     int _end;
@@ -90,6 +87,7 @@ public:
     const std::vector<Named_D>& consts() const { return _consts; }
     const std::vector<Named_D>& vars() const { return _vars; }
     const Block_S& body() const { return _body; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     std::string _name;
     ParamList _params;
@@ -112,6 +110,7 @@ public:
     const std::vector<Named_D>& vars() const { return _vars; }
     const std::vector<Function_D>& functions() const { return _funcs; }
     const Block_S& body() const { return _body; }
+    void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
     std::string _name;
     std::vector<Named_D> _consts;
