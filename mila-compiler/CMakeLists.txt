@@ -2,13 +2,14 @@ add_subdirectory(exception)
 add_subdirectory(ast)
 add_subdirectory(parser)
 add_subdirectory(lexer)
+add_subdirectory(codegen)
 
 add_executable(mila main.cpp)
 
 # Link
 target_link_libraries(mila
   PRIVATE
-    parser
+    code_gen
 )
 
 set_target_properties(mila PROPERTIES OUTPUT_NAME mila
