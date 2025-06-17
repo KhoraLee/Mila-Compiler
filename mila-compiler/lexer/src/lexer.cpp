@@ -7,6 +7,7 @@
 
 Lexer::Lexer(std::istream& input) : stream(input), current(stream.get()), prev_token(nullptr) { }
 
+// TODO: refactor to use 'traits_type::int_type' for better EOF check
 char Lexer::read_char() {
   current = stream.get();
   if (current == '\n') {
@@ -75,9 +76,32 @@ std::string Lexer::read_operator() {
   return op;
 }
 
+char Lexer::unescape_char() {
+  auto it = escapeMap.find(current);
+  if (it != escapeMap.end()) {
+    return it->second;  
+  }
+  throw InvalidSymbolException(_loc, current);
+}
+
 std::string Lexer::read_string() {
-  // UnterminatedStringException
-  throw InvalidSymbolException(_loc, '"');
+  std::ostringstream str;
+  bool escape = false;
+  while (read_char() != '\'' || escape) {
+    if (current == EOF) {
+      throw UnterminatedStringException(_loc);
+    }
+    if(escape) {
+      str << unescape_char();
+      escape = false;
+    } else if (current == '\\') {
+      escape = true;
+    } else {
+      str << current;
+    }
+  }
+  read_char();
+  return str.str();
 }
 
 template<typename T, typename U>

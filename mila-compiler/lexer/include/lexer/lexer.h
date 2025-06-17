@@ -21,6 +21,7 @@ private:
   double read_num(bool& is_float);
   int read_num(IntBase base);
   std::string read_string();
+  char unescape_char();
   std::string read_identifier();
   std::string read_operator();
 
@@ -28,4 +29,11 @@ private:
 
   const std::set<char> space_set = { ' ', '\t', '\n' };
   const std::set<char> op_set = { '+', '-', '*', '/' , '<', '>', '=', ':' };
+  const std::unordered_map<char, char> escapeMap = {
+    { '\\', '\\' },
+    { '\'', '\'' },
+    { 'n',  '\n' },
+    { 't',  '\t' },
+    { 'r',  '\r' },
+  };
 };
