@@ -55,6 +55,24 @@ void CodeGenerator::initializeBuiltinFunctions() {
         _builder.getInt32Ty(), scanf_args, true);
     llvm::Function::Create(scanf_type, llvm::Function::ExternalLinkage,
                           "scanf", _module.get());
+  
+    // sprintf
+    std::vector<llvm::Type*> sprintf_args;
+    sprintf_args.push_back(_builder.getPtrTy()); // buffer
+    sprintf_args.push_back(_builder.getPtrTy()); // format
+    llvm::FunctionType* sprintf_type = llvm::FunctionType::get(
+        _builder.getInt32Ty(), sprintf_args, true);
+    llvm::Function::Create(sprintf_type, llvm::Function::ExternalLinkage,
+                          "sprintf", _module.get());
+
+    // strcat
+    std::vector<llvm::Type*> strcat_args;
+    strcat_args.push_back(_builder.getPtrTy()); // dest
+    strcat_args.push_back(_builder.getPtrTy()); // src
+    llvm::FunctionType* strcat_type = llvm::FunctionType::get(
+        _builder.getPtrTy(), strcat_args, false);
+    llvm::Function::Create(strcat_type, llvm::Function::ExternalLinkage,
+                          "strcat", _module.get());
 }
 
 llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vector<Expr>& args) {
@@ -177,4 +195,22 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
   
   auto isVoid = function->getReturnType()->isVoidTy();
   return _builder.CreateCall(function, fun_args, isVoid ? "" : "call_" + callee);
+}
+
+llvm::Value* CodeGenerator::emitToString(llvm::Value* value, llvm::Type* type) {
+  auto buf = _builder.CreateAlloca(llvm::ArrayType::get(_builder.getInt8Ty(), 32), nullptr, "strbuf");
+  auto bufPtr = _builder.CreatePointerCast(buf, _builder.getPtrTy(), "bufptr");
+
+  llvm::Function* sprintfFn = _module->getFunction("sprintf");
+
+  llvm::Value* fmtStr = nullptr;
+  if (type->isDoubleTy()) {
+    fmtStr = _builder.CreateGlobalStringPtr("%f", "fmt");
+  } else {
+    fmtStr = _builder.CreateGlobalStringPtr("%f", "fmt");
+  }
+
+  _builder.CreateCall(sprintfFn, { bufPtr, fmtStr, value });
+
+  return bufPtr;
 }

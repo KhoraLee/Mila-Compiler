@@ -40,8 +40,11 @@ void CodeGenerator::visit(BinaryExpr* expr) {
   auto right = _value;
   
   auto doubleType = _builder.getDoubleTy();
-  
-  if (left->getType() == doubleType || right->getType() == doubleType) {
+  auto stringType = _builder.getPtrTy();
+
+  if (left->getType() == stringType || right->getType() == stringType) {
+    _value = get_bin_expr_str(left, right, expr->op()->type());
+  } else if (left->getType() == doubleType || right->getType() == doubleType) {
     _value = get_bin_expr_double(left, right, expr->op()->type());
   } else {
     _value = get_bin_expr_int(left, right, expr->op()->type());
@@ -211,4 +214,29 @@ llvm::Value* CodeGenerator::get_bin_expr_int(llvm::Value* left, llvm::Value* rig
     default: llvm::errs() << "Not Implemented"; // throw Exception
   }
   return nullptr;
+}
+
+llvm::Value* CodeGenerator::get_bin_expr_str(llvm::Value* left, llvm::Value* right, TokenType type) {
+  if (type != TOK_PLUS) {
+    llvm::errs() << "String only supprot plus op\n"; // throw Exception
+    return nullptr;
+  }
+  
+  if (!left->getType()->isPointerTy())
+    left = emitToString(left, left->getType());
+
+  if (!right->getType()->isPointerTy())
+    right = emitToString(right, right->getType());
+  
+  auto buf = _builder.CreateAlloca(llvm::ArrayType::get(_builder.getInt8Ty(), 128), nullptr, "concatbuf");
+  auto bufPtr = _builder.CreatePointerCast(buf, _builder.getPtrTy(), "concatptr");
+  
+  llvm::Function* sprintf = _module->getFunction("sprintf");
+  llvm::Function* strcat = _module->getFunction("strcat");
+
+  auto fmtStr = _builder.CreateGlobalStringPtr("%s", "fmt");
+  _builder.CreateCall(sprintf, { bufPtr, fmtStr, left }); // sprintf(buf, "%s", left)
+  _builder.CreateCall(strcat, { bufPtr, right }); // strcat(buf, right)
+
+  return bufPtr;
 }

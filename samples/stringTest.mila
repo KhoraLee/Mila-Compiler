@@ -1,0 +1,14 @@
+program stringTest;
+
+var
+    s1, s2: string;
+    s3 : string;
+begin
+    s1 := 'Hello';
+    s2 := 'World';
+    s3 := '\'!\'';
+    writeln(s1);
+    writeln(s2);
+    writeln(s3);
+    writeln(s1 + ' ' + s2 + s3);
+end. 
