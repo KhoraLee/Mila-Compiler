@@ -32,6 +32,8 @@ llvm::Constant* CodeGenerator::getLLVMDefaultValue(TokenType type) {
       return _builder.getInt32(0);
     case TOK_FLOAT:
       return llvm::ConstantFP::get(llvm::Type::getDoubleTy(_context), 0.0);
+    case TOK_STRING:
+      return llvm::ConstantPointerNull::get(_builder.getPtrTy());
     default:
       return nullptr;
   }
