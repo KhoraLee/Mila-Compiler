@@ -93,6 +93,14 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
       return _builder.CreateCall(builtin, { fmtStr, arg }, "call_write");
     } else if (callee == "readln") {
       builtin = _module->getFunction("scanf");
+      
+      auto arg_expr = std::dynamic_pointer_cast<VariableExpr>(args.front());
+      auto arg_name = arg_expr->name();
+      
+      if (_variables[arg_name])
+        arg = _variables[arg_name];
+      else if (_globals[arg_name])
+        arg = _globals[arg_name];
 
       if (argType->isIntegerTy(32)) {
         format = "%d";
