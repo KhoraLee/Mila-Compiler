@@ -64,6 +64,7 @@ void CodeGenerator::visit(UnaryExpr* expr) {
     case TOK_NOT:
       if (operand->getType()->isIntegerTy(1)) {
         _value = _builder.CreateNot(operand, "not");
+        return;
       } else {
         llvm::Value* zero;
         if (operand->getType()->isFloatingPointTy())
@@ -79,7 +80,7 @@ void CodeGenerator::visit(UnaryExpr* expr) {
         return;
       }
     default:
-      llvm::errs() << "Unknown unary operator\n";
+      llvm::errs() << "Unknown unary operator " << expr->op()->type() << "\n";
       _value = nullptr; // throw exception
   }
 }
