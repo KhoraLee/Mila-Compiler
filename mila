@@ -68,12 +68,18 @@ fi
 #echo "verbose: $v, force: $f, debug: $d, in: $1, out: $outFile"
 
 InputFileName=$(realpath "$1");
-OutputFileName=$(realpath "$outFile");
+
+outDir=$(dirname "$outFile")
+outBase=$(basename "$outFile")
+outAbsDir=$(realpath "$outDir")
+OutputFileName="$outAbsDir/$outBase"
+
 OutputFileBaseName="${OutputFileName%%.*}"
 
 rm -f "$OutputFileBaseName.ir"
 #echo "DEBUG" "$OutputFileBaseName.ir" "$InputFileName" "${DIR}/build/mila"
-> "$OutputFileBaseName.ir" < "$InputFileName" "${DIR}/build/mila" &&
+# > "$OutputFileBaseName.ir" < "$InputFileName" "${DIR}/build/mila" &&
+"${DIR}/build/mila" "$InputFileName" > "$OutputFileBaseName.ir"
 rm -f "$OutputFileBaseName.s"
 llc "$OutputFileBaseName.ir" -o "$OutputFileBaseName.s" -relocation-model=pic &&
 # clang "$OutputFileBaseName.s" "${DIR}/src/fce.c" -o "$OutputFileName"

@@ -19,8 +19,8 @@ foreach(out ${MILA_OUTPUTS})
 	set(inname "${basename}${extensionIn}")
 
 	set(executable ${CMAKE_BINARY_DIR}/tests/${basename})
-	set(outfile ${CMAKE_SOURCE_DIR}/tests/run/${outname})
-	set(infile	${CMAKE_SOURCE_DIR}/tests/run/${inname})
+	set(outfile ${CMAKE_SOURCE_DIR}/tests/${outname})
+	set(infile	${CMAKE_SOURCE_DIR}/tests/${inname})
 
 	if(EXISTS "${infile}")
 		add_test(NAME "run:${outname}" COMMAND
