@@ -1,0 +1,11 @@
+program loopControl;
+
+var
+    i: integer;
+begin
+    for i := 1 to 10 do begin
+        if i = 8 then
+            break;
+        writeln(i);
+    end;
+end. 

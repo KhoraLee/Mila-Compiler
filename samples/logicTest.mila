@@ -1,0 +1,18 @@
+program logicTest;
+
+var
+    a, b: integer;
+begin
+    readln(a);
+    readln(b);
+    if (a < b) and (b > 0) then
+        writeln(1);
+    else
+        writeln(0);
+    if (a = 5) or (b = 0) then
+        writeln(2);
+    else
+        writeln(3);
+    if not (a = b) then
+        writeln(4);
+end. 

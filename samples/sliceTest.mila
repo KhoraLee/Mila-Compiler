@@ -1,0 +1,11 @@
+program sliceTest;
+
+var
+    arr: array [1..10] of integer;
+    i: integer;
+begin
+    for i := 1 to 10 do
+        arr[i] := i * 2;
+    for i := 3 to 7 do
+        writeln(arr[i]);
+end. 
