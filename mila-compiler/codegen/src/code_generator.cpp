@@ -173,5 +173,6 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
     fun_args.push_back(_value);
   }
   
-  return _builder.CreateCall(function, fun_args, "call_" + callee);
+  auto isVoid = function->getReturnType()->isVoidTy();
+  return _builder.CreateCall(function, fun_args, isVoid ? "" : "call_" + callee);
 }
