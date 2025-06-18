@@ -115,19 +115,56 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
 
       return _builder.CreateCall(builtin, { fmtStr, arg }, "call_read");
     }
+  } else if (callee == "inc" || callee == "dec") {
+    if (args.size() < 1 || args.size() > 2) {
+      llvm::errs() << callee << " expects 1 or 2 arguments\n";
+      return nullptr;
+    }
+
+    auto varExpr = std::dynamic_pointer_cast<VariableExpr>(args.front());
+    std::string varName = varExpr->name();
+    llvm::Value* ptr = nullptr;
+
+    if (_variables[varName]) {
+      ptr = _variables[varName];
+    } else if (_globals[varName]) {
+      ptr = _globals[varName];
+    } else {
+      llvm::errs() << "Variable not found: " << varName << "\n";
+      return nullptr;
+    }
+
+    llvm::Value* currentVal = _builder.CreateLoad(_builder.getInt32Ty(), ptr, varName);
+
+    llvm::Value* step;
+    if (args.size() == 2) {
+      args[1]->accept(*this);
+      step = _value;
+    } else {
+      step = llvm::ConstantInt::get(_builder.getInt32Ty(), 1);
+    }
+
+    llvm::Value* result;
+    if (callee == "inc")
+      result = _builder.CreateAdd(currentVal, step, "inc");
+    else
+      result = _builder.CreateSub(currentVal, step, "dec");
+
+    _builder.CreateStore(result, ptr);
+    return result;
   }
 
   // Functions declared in the code
   auto function = _module->getFunction(callee);
   if (!function) {
     llvm::errs() << "Function is not defined: '" << callee << "'\n";
-    return; // throw error
+    exit(1); // throw error
   }
 
   // Check arg size
   if (args.size() != function->arg_size()) {
     llvm::errs() << "Arg size misamtch: '" << callee << "'\n";
-    return; // throw error
+    exit(1); // throw error
   }
   
   std::vector<llvm::Value*> fun_args;
