@@ -108,6 +108,8 @@ void CodeGenerator::visit(WhileStmt* stmt) {
   cond = _builder.CreateICmpNE(cond, _builder.getInt1(false), "while.cond");
   _builder.CreateCondBr(cond, loopBody, loopEnd);
 
+  _breakBlock = loopEnd;
+
   // loop body
   _builder.SetInsertPoint(loopBody);
   stmt->body()->accept(*this);
@@ -116,6 +118,7 @@ void CodeGenerator::visit(WhileStmt* stmt) {
 
   // loop end
   _builder.SetInsertPoint(loopEnd);
+    _breakBlock = nullptr;
 }
 
 void CodeGenerator::visit(ForStmt* stmt) {
