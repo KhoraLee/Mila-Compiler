@@ -86,6 +86,14 @@ void CodeGenerator::visit(FunctionDecl* decl) {
                                       llvm::Function::ExternalLinkage, name,
                                       _module.get());
   }
+
+  _functions[name] = function;
+
+  if (!decl->body()) {
+    // Forward declaration only
+    return;
+  }
+
   uint32_t i = 0;
   for (auto &arg : function->args())
     arg.setName(argNames[i++]);
@@ -126,8 +134,6 @@ void CodeGenerator::visit(FunctionDecl* decl) {
   // Roll back context
   _constants = consts;
   _variables.clear();
-  
-  _functions[name] = function;
 }
 
 void CodeGenerator::visit(ProgramDecl* program) {

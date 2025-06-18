@@ -118,6 +118,11 @@ Function_D Parser::functionDeclaration() {
     }
     
     consume(TokenType::TOK_SEMICOLON, "Expected ';' after function declaration");
+
+    if (match(TokenType::TOK_FORWARD)) {
+        consume(TokenType::TOK_SEMICOLON, "Expected ';' after forward declaration");
+        return std::make_shared<FunctionDecl>(name, params, returnType, std::vector<Named_D>(), std::vector<Named_D>(), nullptr, _previous->location());
+    }
     
     // Parse const and var declarations
     std::vector<Named_D> consts;
