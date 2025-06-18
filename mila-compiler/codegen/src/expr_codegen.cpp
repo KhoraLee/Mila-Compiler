@@ -60,6 +60,7 @@ void CodeGenerator::visit(UnaryExpr* expr) {
         _value = _builder.CreateFNeg(operand, "fneg");
       else
         _value = _builder.CreateNeg(operand, "neg");
+      return;
     case TOK_NOT:
       if (operand->getType()->isIntegerTy(1)) {
         _value = _builder.CreateNot(operand, "not");
@@ -75,6 +76,7 @@ void CodeGenerator::visit(UnaryExpr* expr) {
                    : _builder.CreateICmpNE(operand, zero);
 
         _value = _builder.CreateNot(cmp, "not");
+        return;
       }
     default:
       llvm::errs() << "Unknown unary operator\n";
