@@ -93,34 +93,35 @@ void CodeGenerator::visit(ParenExpr* expr) {
 }
 
 void CodeGenerator::visit(ArrayAccess* expr) {
-  expr->array()->accept(*this);
-  auto array = _value;
+  auto name = expr->array();
   expr->index()->accept(*this);
   auto index = _value;
   
+  llvm::Value* array;
   llvm::ArrayType* arrayType = nullptr;
   llvm::Type* elementType = nullptr;
   
-  if (auto* gv = llvm::dyn_cast<llvm::GlobalVariable>(array)) {
+  if ((array = _globals[name])) {
+    auto* gv = llvm::dyn_cast<llvm::GlobalVariable>(array);
     arrayType = llvm::cast<llvm::ArrayType>(gv->getValueType());
     elementType = arrayType->getElementType();
-  } else if (auto* alloc = llvm::dyn_cast<llvm::AllocaInst>(array)) {
+  } else if ((array = _variables[name])) {
+    auto* alloc = llvm::dyn_cast<llvm::AllocaInst>(array);
     arrayType = llvm::cast<llvm::ArrayType>(alloc->getAllocatedType());
     elementType = arrayType->getElementType();
   } else {
     llvm::errs() << "Error: Not a valid array variable.\n";
-    _value = nullptr;
+    // throw error
     return;
   }
 
   int startIndex = 0;
   
-  auto varDecl = std::dynamic_pointer_cast<VariableExpr>(expr->array());
-  auto it = _arrayDecls.find(varDecl->name());
+  auto it = _arrayDecls.find(expr->array());
   if (it != _arrayDecls.end()) {
     startIndex = it->second->start();  // 선언 정보에서 시작 인덱스 얻기
   } else {
-    llvm::errs() << "Error: No ArrayDecl found for " << varDecl->name() << "\n";
+    llvm::errs() << "Error: No ArrayDecl found for " << expr->array() << "\n";
     _value = nullptr; // throw error
     return;
   }

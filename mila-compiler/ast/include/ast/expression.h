@@ -117,13 +117,13 @@ using Paren_E = std::shared_ptr<ParenExpr>;
 
 class ArrayAccess : public Expression {
 public:
-    ArrayAccess(Expr array, Expr index, SourceLocation loc)
+    ArrayAccess(std::string array, Expr index, SourceLocation loc)
         : Expression(std::move(loc)), _array(std::move(array)), _index(std::move(index)) {}
-    const Expr& array() const { return _array; }
+    const std::string& array() const { return _array; }
     const Expr& index() const { return _index; }
     void accept(ASTVisitor& visitor) override { visitor.visit(this); }
 private:
-    Expr _array;
+    std::string _array;
     Expr _index;
 };
 

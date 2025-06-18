@@ -98,7 +98,7 @@ Expr Parser::variableOrCall() {
     if (match(TokenType::TOK_OPEN_BRACKET)) {
         Expr index = expression();
         consume(TokenType::TOK_CLOSE_BRACKET, "Expect ']' after array index.");
-        expr = std::make_shared<ArrayAccess>(expr, index, token->location());
+        expr = std::make_shared<ArrayAccess>(name, index, token->location());
     }
 
     return expr;
