@@ -65,7 +65,8 @@ private:
   
     // Store last expreesion value
     llvm::Value* _value;
-    llvm::BasicBlock* _currentReturnBlock;
+    llvm::BasicBlock* _returnBlock;
+    llvm::BasicBlock* _breakBlock;
 
     // Symbol table for variables and functions
     std::unordered_map<std::string, llvm::AllocaInst*> _variables;

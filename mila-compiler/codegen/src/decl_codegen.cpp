@@ -115,7 +115,7 @@ void CodeGenerator::visit(FunctionDecl* decl) {
   // Body
   auto retBlock = llvm::BasicBlock::Create(_context, "return", function);
 //  _builder.SetInsertPoint(block);
-  _currentReturnBlock = retBlock;
+  _returnBlock = retBlock;
   decl->body()->accept(*this);
   _builder.CreateBr(retBlock);
   _builder.SetInsertPoint(retBlock);

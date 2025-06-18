@@ -113,13 +113,13 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
   auto function = _module->getFunction(callee);
   if (!function) {
     llvm::errs() << "Function is not defined: '" << callee << "'\n";
-    // throw error
+    return; // throw error
   }
 
   // Check arg size
   if (args.size() != function->arg_size()) {
     llvm::errs() << "Arg size misamtch: '" << callee << "'\n";
-    // throw error
+    return; // throw error
   }
   
   std::vector<llvm::Value*> fun_args;
