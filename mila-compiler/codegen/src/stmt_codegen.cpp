@@ -182,7 +182,7 @@ void CodeGenerator::visit(CallStmt* stmt) {
 }
 
 void CodeGenerator::visit(BreakStmt* stmt) { (void)stmt;
-  if (_returnBlock) {
+  if (_breakBlock) {
     _builder.CreateBr(_breakBlock);
     return;
   }
