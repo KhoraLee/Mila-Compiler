@@ -18,6 +18,7 @@ private:
   TokenPtr prev_token;
 
   char read_char();
+  void unget();
   double read_num(bool& is_float);
   int read_num(IntBase base);
   std::string read_string();

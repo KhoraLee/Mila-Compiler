@@ -19,12 +19,23 @@ char Lexer::read_char() {
   return current;
 }
 
+void Lexer::unget() {
+  _loc.column--; // unget will not called for '\n'. So just roll back column.
+  stream.unget();
+}
+
 double Lexer::read_num(bool& is_float) {
   std::string number{current};
   bool dot_found = false;
-
+  char prev = current;
+  
   while (std::isdigit(read_char()) || current == '.') {
     if (current == '.') {
+      if (prev == '.') {
+        unget();
+        is_float = false;
+        break;
+      }
       if (dot_found) {
         throw InvalidNumberException(_loc);
       }
@@ -32,6 +43,7 @@ double Lexer::read_num(bool& is_float) {
       is_float = true;
     } 
     number += current;
+    prev = current;
   }
   return std::stod(number);
 }
