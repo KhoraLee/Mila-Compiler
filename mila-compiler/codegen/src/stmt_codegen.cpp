@@ -64,27 +64,29 @@ void CodeGenerator::visit(ArrayAssignStmt* stmt) {
 void CodeGenerator::visit(IfStmt* stmt) {
   stmt->condition()->accept(*this);
   auto condition = _value;
-  condition = _builder.CreateICmpNE(condition, _builder.getInt1(false), "ifcond");
+  // condition = _builder.CreateICmpNE(condition, _builder.getInt1(false), "ifcond");
 
   auto function = _builder.GetInsertBlock()->getParent();
   auto thenBlock = llvm::BasicBlock::Create(_context, "then", function);
-  auto elseBlock = llvm::BasicBlock::Create(_context, "else", function);
+  auto elseBlock = stmt->elseBranch() ? llvm::BasicBlock::Create(_context, "else", function) : nullptr;
   auto mergeBlock = llvm::BasicBlock::Create(_context, "ifcont", function);
 
-  _builder.CreateCondBr(condition, thenBlock, elseBlock);
+  _builder.CreateCondBr(condition, thenBlock, elseBlock ? elseBlock : mergeBlock);
   
   // then
   _builder.SetInsertPoint(thenBlock);
   stmt->thenBranch()->accept(*this);
-  if(!_builder.GetInsertBlock()->getTerminator())
+  bool thenTerminated = _builder.GetInsertBlock()->getTerminator();
+  if(!thenTerminated)
     _builder.CreateBr(mergeBlock);
   
   // else
-  _builder.SetInsertPoint(elseBlock);
-  if (stmt->elseBranch())
+  if (stmt->elseBranch()) {
+    _builder.SetInsertPoint(elseBlock);
     stmt->elseBranch()->accept(*this);
-  if (!_builder.GetInsertBlock()->getTerminator())
-    _builder.CreateBr(mergeBlock);
+    if (!_builder.GetInsertBlock()->getTerminator())
+      _builder.CreateBr(mergeBlock);
+  }
 
   // merge
   _builder.SetInsertPoint(mergeBlock);
