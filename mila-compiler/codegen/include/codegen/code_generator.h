@@ -62,6 +62,10 @@ private:
     llvm::LLVMContext _context;
     llvm::IRBuilder<> _builder;
     std::unique_ptr<llvm::Module> _module;
+  
+    // Store last expreesion value
+    llvm::Value* _value;
+    llvm::BasicBlock* _currentReturnBlock;
 
     // Symbol table for variables and functions
     std::unordered_map<std::string, llvm::AllocaInst*> _variables;
@@ -70,6 +74,7 @@ private:
     std::unordered_map<std::string, llvm::Function*> _functions;
 
     llvm::Type* getLLVMType(const TokenType type);
+    llvm::Constant* getLLVMDefaultValue(TokenType type);
 
     void initializeBuiltinFunctions();
 };

@@ -8,22 +8,33 @@
 #include <llvm/IR/IRBuilder.h>
 
 CodeGenerator::CodeGenerator()
-    : _builder(_context) {
-    _module = std::make_unique<llvm::Module>("mila", _context);
-    initializeBuiltinFunctions();
+  : _builder(_context) {
+  _module = std::make_unique<llvm::Module>("mila", _context);
+  initializeBuiltinFunctions();
 }
 
 llvm::Type* CodeGenerator::getLLVMType(const TokenType type) {
-    switch (type) {
-        case TOK_INTEGER:
-            return _builder.getInt32Ty();
-        case TOK_FLOAT:
-            return _builder.getFloatTy();
-        case TOK_STRING:
-            return _builder.getPtrTy();
-        default:
-            return _builder.getVoidTy();
-    }
+  switch (type) {
+    case TOK_INTEGER:
+      return _builder.getInt32Ty();
+    case TOK_FLOAT:
+      return _builder.getFloatTy();
+    case TOK_STRING:
+      return _builder.getPtrTy();
+    default:
+      return _builder.getVoidTy();
+  }
+}
+
+llvm::Constant* CodeGenerator::getLLVMDefaultValue(TokenType type) {
+  switch (type) {
+    case TOK_INTEGER:
+      return _builder.getInt32(0);
+    case TOK_FLOAT:
+      return llvm::ConstantFP::get(llvm::Type::getDoubleTy(_context), 0.0);
+    default:
+      return nullptr;
+  }
 }
 
 void CodeGenerator::initializeBuiltinFunctions() {
