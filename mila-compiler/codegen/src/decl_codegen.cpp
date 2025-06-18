@@ -140,7 +140,7 @@ void CodeGenerator::visit(ProgramDecl* program) {
   for (auto &func : program->functions())
     func->accept(*this);
 
-  auto mainFuncType = llvm::FunctionType::get(_builder.getVoidTy(), false);
+  auto mainFuncType = llvm::FunctionType::get(_builder.getInt32Ty(), false);
   auto mainFunc = llvm::Function::Create(mainFuncType, llvm::Function::ExternalLinkage, "main", _module.get());
   auto entryBlock = llvm::BasicBlock::Create(_context, "entry", mainFunc);
   auto exitBlock = llvm::BasicBlock::Create(_context, "exit", mainFunc);
@@ -151,7 +151,7 @@ void CodeGenerator::visit(ProgramDecl* program) {
   
   _builder.CreateBr(exitBlock);
   _builder.SetInsertPoint(exitBlock);
-  _builder.CreateRetVoid();
+  _builder.CreateRet(_builder.getInt32(0));
 
   if (llvm::verifyFunction(*mainFunc, &llvm::errs())) {
     llvm::errs() << "Main function verification failed.\n";
