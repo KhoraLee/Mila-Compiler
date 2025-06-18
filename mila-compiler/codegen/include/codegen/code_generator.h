@@ -72,9 +72,12 @@ private:
     std::unordered_map<std::string, llvm::Constant*> _constants;
     std::unordered_map<std::string, llvm::GlobalVariable*> _globals;
     std::unordered_map<std::string, llvm::Function*> _functions;
+    std::unordered_map<std::string, ArrayDecl*> _arrayDecls;
 
     llvm::Type* getLLVMType(const TokenType type);
     llvm::Constant* getLLVMDefaultValue(TokenType type);
 
     void initializeBuiltinFunctions();
+    llvm::Value* get_bin_expr_double(llvm::Value* left, llvm::Value* right, TokenType type);
+    llvm::Value* get_bin_expr_int(llvm::Value* left, llvm::Value* right, TokenType type);
 };

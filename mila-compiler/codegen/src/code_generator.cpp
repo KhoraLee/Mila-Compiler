@@ -18,7 +18,7 @@ llvm::Type* CodeGenerator::getLLVMType(const TokenType type) {
     case TOK_INTEGER:
       return _builder.getInt32Ty();
     case TOK_FLOAT:
-      return _builder.getFloatTy();
+      return _builder.getDoubleTy();
     case TOK_STRING:
       return _builder.getPtrTy();
     default:

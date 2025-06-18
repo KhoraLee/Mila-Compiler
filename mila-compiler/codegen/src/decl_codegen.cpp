@@ -31,6 +31,9 @@ void CodeGenerator::visit(VarDecl* decl) {
 void CodeGenerator::visit(ArrayDecl* decl) {
   auto name = decl->name();
   auto type = decl->type();
+  
+  _arrayDecls[name] = decl; // Store array declaration for future access
+  
   uint32_t size = decl->end() - decl->start() + 1;
   
   auto arrayType = llvm::ArrayType::get(getLLVMType(type), size);

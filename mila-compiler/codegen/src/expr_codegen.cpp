@@ -1,37 +1,288 @@
 #include <codegen/code_generator.h>
 
 void CodeGenerator::visit(IntegerLiteral* expr) {
-
+  _value = llvm::ConstantInt::get(_builder.getInt32Ty(), expr->value());
 }
 
 void CodeGenerator::visit(FloatLiteral* expr) {
-
+  _value = llvm::ConstantFP::get(_builder.getDoubleTy(), expr->value());
 }
 
 void CodeGenerator::visit(StringLiteral* expr) {
-
+  auto str = expr->value();
+  _value = _builder.CreateGlobalStringPtr(std::move(str), "string");
 }
 
 void CodeGenerator::visit(VariableExpr* expr) {
-
+  std:: string name = expr->name();
+  if (_constants[name]) {
+    _value = _constants[name];
+    return;
+  }
+  if (_variables[name]) {
+    auto var = _variables[name];
+    _value = _builder.CreateLoad(var->getAllocatedType(), var, name);
+    return;
+  }
+  if (_globals[name]) {
+    auto var = _globals[name];
+    _value = _builder.CreateLoad(var->getValueType(), var, name);
+    return;
+  }
+  llvm::errs() << "Error: Undefined variable '" << name << "'\n";
+  _value = nullptr;  // throw exception
 }
 
 void CodeGenerator::visit(BinaryExpr* expr) {
-
+  expr->left()->accept(*this);
+  auto left = _value;
+  expr->right()->accept(*this);
+  auto right = _value;
+  
+  auto doubleType = _builder.getDoubleTy();
+  
+  if (left->getType() == doubleType || right->getType() == doubleType) {
+    _value = get_bin_expr_double(left, right, expr->op()->type());
+  } else {
+    _value = get_bin_expr_int(left, right, expr->op()->type());
+  }
 }
 
 void CodeGenerator::visit(UnaryExpr* expr) {
+  expr->expr()->accept(*this);
+  auto operand = _value;
+  
+  switch(expr->op()->type()) {
+    case TOK_PLUS:
+      return;
+    case TOK_MINUS:
+      if (operand->getType()->isDoubleTy())
+        _value = _builder.CreateFNeg(operand, "fneg");
+      else
+        _value = _builder.CreateNeg(operand, "neg");
+    case TOK_NOT:
+      if (operand->getType()->isIntegerTy(1)) {
+        _value = _builder.CreateNot(operand, "not");
+      } else {
+        llvm::Value* zero;
+        if (operand->getType()->isFloatingPointTy())
+          zero = llvm::ConstantFP::get(operand->getType(), 0.0);
+        else
+          zero = llvm::ConstantInt::get(operand->getType(), 0);
 
+        auto cmp = operand->getType()->isFloatingPointTy()
+                   ? _builder.CreateFCmpONE(operand, zero)
+                   : _builder.CreateICmpNE(operand, zero);
+
+        _value = _builder.CreateNot(cmp, "not");
+      }
+    default:
+      llvm::errs() << "Unknown unary operator\n";
+      _value = nullptr; // throw exception
+  }
 }
 
 void CodeGenerator::visit(CallExpr* expr) {
+  auto callee = expr->callee();
+  
+  // Built-in functions
+  if (callee == "write" || callee == "writeln" || callee == "readln") {
+    llvm::Function* builtin;
+    std::string format;
+    
+    if (expr->args().size() != 1) {
+      llvm::errs() << "Built-in functions should have only one arg\n";
+      // throw error
+    }
+    
+    expr->args().front()->accept(*this);
+    llvm::Value* arg = _value;
+    llvm::Value* fmtStr = nullptr;
 
+    llvm::Type* argType = arg->getType();
+
+    if (callee == "write" || callee == "writeln") {
+      builtin = _module->getFunction("printf");
+
+      if (argType->isIntegerTy(32)) {
+        format = "%d";
+      } else if (argType->isDoubleTy()) {
+        format = "%f";
+      } else if (argType->isPointerTy()) {
+        format = "%s";
+      } else {
+        llvm::errs() << "Unsupported type for write/writeln\n";
+        _value = nullptr;
+        return;
+      }
+
+      if (callee == "writeln")
+        format += "\n";
+
+      fmtStr = _builder.CreateGlobalStringPtr(format, "fmt");
+      _value = _builder.CreateCall(builtin, { fmtStr, arg }, "call_write");
+    } else if (callee == "readln") {
+      builtin = _module->getFunction("scanf");
+
+      if (argType->isIntegerTy(32)) {
+        format = "%d";
+      } else if (argType->isDoubleTy()) {
+        format = "%lf";
+      } else {
+        llvm::errs() << "Unsupported type for readln\n";
+        _value = nullptr;
+        return;
+      }
+
+      fmtStr = _builder.CreateGlobalStringPtr(format, "fmt");
+
+      _value = _builder.CreateCall(builtin, { fmtStr, arg }, "call_read");
+    }
+
+    return;
+  }
+
+
+  // Functions declared in the code
+  auto function = _module->getFunction(callee);
+  if (!function)
+    llvm::errs() << "Function is not defined: '" << callee << "'\n";
+    // throw error
+
+  // Check arg size
+  if (expr->args().size() != function->arg_size()) {
+    llvm::errs() << "Arg size misamtch: '" << callee << "'\n";
+    // throw error
+  }
+  
+  std::vector<llvm::Value*> args;
+  for (const auto& arg : expr->args()) {
+    arg->accept(*this);
+    args.push_back(_value);
+  }
+  
+  _value = _builder.CreateCall(function, args, "call_" + callee);
 }
 
 void CodeGenerator::visit(ParenExpr* expr) {
-
+  expr->expr()->accept(*this);
 }
 
 void CodeGenerator::visit(ArrayAccess* expr) {
+  expr->array()->accept(*this);
+  auto array = _value;
+  expr->index()->accept(*this);
+  auto index = _value;
+  
+  llvm::ArrayType* arrayType = nullptr;
+  llvm::Type* elementType = nullptr;
+  
+  if (auto* gv = llvm::dyn_cast<llvm::GlobalVariable>(array)) {
+    arrayType = llvm::cast<llvm::ArrayType>(gv->getValueType());
+    elementType = arrayType->getElementType();
+  } else if (auto* alloc = llvm::dyn_cast<llvm::AllocaInst>(array)) {
+    arrayType = llvm::cast<llvm::ArrayType>(alloc->getAllocatedType());
+    elementType = arrayType->getElementType();
+  } else {
+    llvm::errs() << "Error: Not a valid array variable.\n";
+    _value = nullptr;
+    return;
+  }
 
+  int startIndex = 0;
+  
+  auto varDecl = std::dynamic_pointer_cast<VariableExpr>(expr->array());
+  auto it = _arrayDecls.find(varDecl->name());
+  if (it != _arrayDecls.end()) {
+    startIndex = it->second->start();  // 선언 정보에서 시작 인덱스 얻기
+  } else {
+    llvm::errs() << "Error: No ArrayDecl found for " << varDecl->name() << "\n";
+    _value = nullptr; // throw error
+    return;
+  }
+  
+  if (startIndex != 0) {
+    auto adj = llvm::ConstantInt::get(index->getType(), startIndex);
+    index = _builder.CreateSub(index, adj, "index_adj");
+  }
+  
+  auto gep = _builder.CreateInBoundsGEP(arrayType, array,
+                                        { _builder.getInt32(0), index },
+                                        "element_ptr");
+
+  _value = _builder.CreateLoad(elementType, gep, "element");
+}
+
+llvm::Value* CodeGenerator::get_bin_expr_double(llvm::Value* left, llvm::Value* right, TokenType type) {
+  if (left->getType() == _builder.getInt32Ty())
+    left = _builder.CreateSIToFP(left, _builder.getDoubleTy());
+  else if (right->getType() == _builder.getInt32Ty())
+    right = _builder.CreateSIToFP(right, _builder.getDoubleTy());
+
+  switch(type) {
+    case TOK_PLUS:
+      return _builder.CreateFAdd(left, right, "add");
+    case TOK_MINUS:
+      return _builder.CreateFSub(left, right, "sub");
+    case TOK_MULTIPLY:
+      return _builder.CreateFMul(left, right, "mul");
+    case TOK_DIVIDE:
+      return _builder.CreateFDiv(left, right, "divide");
+//    case TOK_DIV:
+//      return _builder.CreateSDiv(left, right, "div");
+    case TOK_MOD:
+      return _builder.CreateFRem(left, right, "mod");
+    case TOK_LESS:
+      return _builder.CreateFCmpOLT(left, right, "cmp");
+    case TOK_LESS_OR_EQUAL:
+      return _builder.CreateFCmpOLE(left, right, "cmp");
+    case TOK_GREATER:
+      return _builder.CreateFCmpOGT(left, right, "cmp");
+    case TOK_GREATER_OR_EQUAL:
+      return _builder.CreateFCmpOGE(left, right, "cmp");
+    case TOK_EQUAL:
+      return _builder.CreateFCmpOEQ(left, right, "cmp");
+    case TOK_NOT_EQUAL:
+      return _builder.CreateFCmpONE(left, right, "cmp");
+//    case TOK_AND:
+//      return _builder.CreateAnd(left, right, "cmp");
+//    case TOK_OR:
+//      return _builder.CreateOr(left, right, "cmp");
+    default: llvm::errs() << "Not Implemented"; // throw Exception
+  }
+  return nullptr;
+}
+
+llvm::Value* CodeGenerator::get_bin_expr_int(llvm::Value* left, llvm::Value* right, TokenType type) {
+  switch(type) {
+    case TOK_PLUS:
+      return _builder.CreateAdd(left, right, "add");
+    case TOK_MINUS:
+      return _builder.CreateSub(left, right, "sub");
+    case TOK_MULTIPLY:
+      return _builder.CreateMul(left, right, "mul");
+    case TOK_DIVIDE:
+    case TOK_DIV:
+      return _builder.CreateSDiv(left, right, "div");
+    case TOK_MOD:
+      return _builder.CreateSRem(left, right, "mod");
+    case TOK_LESS:
+      return _builder.CreateICmpSLT(left, right, "cmp");
+    case TOK_LESS_OR_EQUAL:
+      return _builder.CreateICmpSLE(left, right, "cmp");
+    case TOK_GREATER:
+      return _builder.CreateICmpSGT(left, right, "cmp");
+    case TOK_GREATER_OR_EQUAL:
+      return _builder.CreateICmpSGE(left, right, "cmp");
+    case TOK_EQUAL:
+      return _builder.CreateICmpEQ(left, right, "cmp");
+    case TOK_NOT_EQUAL:
+      return _builder.CreateICmpNE(left, right, "cmp");
+    case TOK_AND:
+      return _builder.CreateAnd(left, right, "cmp");
+    case TOK_OR:
+      return _builder.CreateOr(left, right, "cmp");
+    default: llvm::errs() << "Not Implemented"; // throw Exception
+  }
+  return nullptr;
 }
