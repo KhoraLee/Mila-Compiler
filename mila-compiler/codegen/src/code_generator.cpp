@@ -1,5 +1,7 @@
 #include <codegen/code_generator.h>
 
+#include <exception/codegen_exception.h>
+
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
@@ -35,7 +37,7 @@ llvm::Constant* CodeGenerator::getLLVMDefaultValue(TokenType type) {
     case TOK_STRING:
       return llvm::ConstantPointerNull::get(_builder.getPtrTy());
     default:
-      return nullptr;
+      throw CodeGenException({-1, -1}, "Unknown type token");
   }
 }
 
@@ -75,15 +77,14 @@ void CodeGenerator::initializeBuiltinFunctions() {
                           "strcat", _module.get());
 }
 
-llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vector<Expr>& args) {
+llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vector<Expr>& args, const SourceLocation loc) {
   // Built-in functions
   if (callee == "write" || callee == "writeln" || callee == "readln") {
     llvm::Function* builtin;
     std::string format;
     
     if (args.size() != 1) {
-      llvm::errs() << "Built-in functions should have only one arg\n";
-      // throw error
+      throw CodeGenException(loc, callee + " functions should have only one arg");
     }
     
     args.front()->accept(*this);
@@ -102,8 +103,7 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
       } else if (argType->isPointerTy()) {
         format = "%s";
       } else {
-        llvm::errs() << "Unsupported type for write/writeln\n";
-        return nullptr;
+        throw CodeGenException(loc, "Unsupported type for " + callee);
       }
 
       if (callee == "writeln")
@@ -127,8 +127,7 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
       } else if (argType->isDoubleTy()) {
         format = "%lf";
       } else {
-        llvm::errs() << "Unsupported type for readln\n";
-        return nullptr;
+        throw CodeGenException(loc, "Unsupported type for " + callee);
       }
 
       fmtStr = _builder.CreateGlobalStringPtr(format, "fmt");
@@ -137,8 +136,7 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
     }
   } else if (callee == "inc" || callee == "dec") {
     if (args.size() < 1 || args.size() > 2) {
-      llvm::errs() << callee << " expects 1 or 2 arguments\n";
-      return nullptr;
+      throw CodeGenException(loc, callee + "expects 1 or 2 arguments");
     }
 
     auto varExpr = std::dynamic_pointer_cast<VariableExpr>(args.front());
@@ -150,8 +148,7 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
     } else if (_globals[varName]) {
       ptr = _globals[varName];
     } else {
-      llvm::errs() << "Variable not found: " << varName << "\n";
-      return nullptr;
+      throw CodeGenException(loc, "Variable not found: " + varName);
     }
 
     llvm::Value* currentVal = _builder.CreateLoad(_builder.getInt32Ty(), ptr, varName);
@@ -174,8 +171,7 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
     return result;
   } else if (callee == "int" || callee == "float") {
     if (args.size() != 1) {
-      llvm::errs() << callee << " expects 1 arguments\n";
-      return nullptr; // throw
+      throw CodeGenException(loc, callee + "expects 1 argument");
     }
     
     args.front()->accept(*this);
@@ -187,8 +183,7 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
       } else if (arg->getType()->isIntegerTy()) {
         return arg;
       } else {
-        llvm::errs() << "Unsupported type for int()\n";
-        return nullptr; // throw
+        throw CodeGenException(loc, "Unsupported type for int()");
       }
     } else {
       if (arg->getType()->isDoubleTy()) {
@@ -196,8 +191,7 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
       } else if (arg->getType()->isIntegerTy()) {
         return _builder.CreateSIToFP(arg, _builder.getDoubleTy());
       } else {
-        llvm::errs() << "Unsupported type for float()\n";
-        return nullptr; // throw
+        throw CodeGenException(loc, "Unsupported type for float()");
       }
     }
   }
@@ -205,14 +199,12 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
   // Functions declared in the code
   auto function = _module->getFunction(callee);
   if (!function) {
-    llvm::errs() << "Function is not defined: '" << callee << "'\n";
-    exit(1); // throw error
+    throw CodeGenException(loc, "Function is not defined: " + callee);
   }
 
   // Check arg size
   if (args.size() != function->arg_size()) {
-    llvm::errs() << "Arg size misamtch: '" << callee << "'\n";
-    exit(1); // throw error
+    throw CodeGenException(loc, "Arg size misamtch: " + callee);
   }
   
   std::vector<llvm::Value*> fun_args;

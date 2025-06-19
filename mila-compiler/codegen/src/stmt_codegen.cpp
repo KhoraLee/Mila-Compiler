@@ -1,4 +1,5 @@
 #include <codegen/code_generator.h>
+#include <exception/codegen_exception.h>
 
 void CodeGenerator::visit(AssignStmt* stmt) {
   llvm::Value* var;
@@ -14,8 +15,7 @@ void CodeGenerator::visit(AssignStmt* stmt) {
     } else if (auto* alloc = llvm::dyn_cast<llvm::AllocaInst>(var)) {
       targetType = alloc->getAllocatedType();
     } else {
-      llvm::errs() << "Unsupported assignment target\n";
-      return; // throw
+      throw CodeGenException(stmt->location(), "Unsupported assignment target");
     }
     
     llvm::Value* valueToStore = _value;
@@ -26,16 +26,18 @@ void CodeGenerator::visit(AssignStmt* stmt) {
       } else if (targetType->isIntegerTy() && _value->getType()->isDoubleTy()) {
         valueToStore = _builder.CreateFPToSI(_value, targetType, "cast_int");
       } else {
-        llvm::errs() << "Unsupported type cast from " << *_value->getType()
-                     << " to " << *targetType << "\n";
-        return; // throw
+        std::string errStr;
+        llvm::raw_string_ostream errStream(errStr);
+        errStream << "Unsupported type cast from " << *_value->getType()
+                  << " to " << *targetType;
+        throw CodeGenException(stmt->location(), errStream.str());
       }
     }
     _builder.CreateStore(valueToStore, var);
   }
-//  if (_constants[name])
-//    // throw exception
-//  //throw exception
+  if (_constants[name])
+    throw CodeGenException(stmt->location(), "Cannot assgin value to constant");
+  throw CodeGenException(stmt->location(), "Undefined variable: " + name);
 }
 
 void CodeGenerator::visit(ArrayAssignStmt* stmt) {
@@ -48,11 +50,9 @@ void CodeGenerator::visit(ArrayAssignStmt* stmt) {
   
   auto it = _arrayDecls.find(name);
   if (it != _arrayDecls.end()) {
-    startIndex = it->second->start();  // 선언 정보에서 시작 인덱스 얻기
+    startIndex = it->second->start();
   } else {
-    llvm::errs() << "Error: No ArrayDecl found for " << name << "\n";
-    // throw error
-    return;
+    throw CodeGenException(stmt->location(), "Undefined variable: " + name);
   }
   
   if (startIndex != 0) {
@@ -70,9 +70,7 @@ void CodeGenerator::visit(ArrayAssignStmt* stmt) {
     auto* alloc = llvm::dyn_cast<llvm::AllocaInst>(array);
     arrayType = llvm::cast<llvm::ArrayType>(alloc->getAllocatedType());
   } else {
-    llvm::errs() << "Error: Not a valid array variable.\n";
-    // throw error
-    return;
+    throw CodeGenException(stmt->location(), "Not a valid array variable: " + name);
   }
 
   auto gep = _builder.CreateInBoundsGEP(arrayType, array,
@@ -88,9 +86,11 @@ void CodeGenerator::visit(ArrayAssignStmt* stmt) {
     } else if (targetType->isIntegerTy() && _value->getType()->isDoubleTy()) {
       valueToStore = _builder.CreateFPToSI(_value, targetType, "cast_int");
     } else {
-      llvm::errs() << "Unsupported type cast from " << *_value->getType()
-                   << " to " << *targetType << "\n";
-      return; // throw
+      std::string errStr;
+      llvm::raw_string_ostream errStream(errStr);
+      errStream << "Unsupported type cast from " << *_value->getType()
+                << " to " << *targetType;
+      throw CodeGenException(stmt->location(), errStream.str());
     }
   }
 
@@ -218,7 +218,7 @@ void CodeGenerator::visit(BlockStmt* stmt) {
 }
 
 void CodeGenerator::visit(CallStmt* stmt) {
-  emitCall(stmt->callee(), stmt->args());
+  emitCall(stmt->callee(), stmt->args(), stmt->location());
 }
 
 void CodeGenerator::visit(BreakStmt* stmt) { (void)stmt;
@@ -226,7 +226,7 @@ void CodeGenerator::visit(BreakStmt* stmt) { (void)stmt;
     _builder.CreateBr(_breakBlock);
     return;
   }
-  // throw error
+  throw CodeGenException(stmt->location(), "Break statement outside of loop");
 }
 
 void CodeGenerator::visit(ExitStmt* stmt) { (void)stmt;
@@ -234,5 +234,5 @@ void CodeGenerator::visit(ExitStmt* stmt) { (void)stmt;
     _builder.CreateBr(_returnBlock);
     return;
   }
-  // throw error
+  throw CodeGenException(stmt->location(), "Exit statement without return block");
 }

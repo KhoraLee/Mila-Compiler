@@ -1,5 +1,5 @@
 #include <codegen/code_generator.h>
-
+#include <exception/codegen_exception.h>
 #include <llvm/IR/Verifier.h>
 #include <iostream>
 
@@ -77,9 +77,7 @@ void CodeGenerator::visit(FunctionDecl* decl) {
   
   if (function) {
     if (function->getFunctionType() != functionType) {
-      std::cerr << "redefine" ;
-      exit(-1);
-      // throw redefine error
+      throw CodeGenException(decl->location(), "Redefine of function: " + name);
     }
   } else {
     function = llvm::Function::Create(functionType,
@@ -160,6 +158,6 @@ void CodeGenerator::visit(ProgramDecl* program) {
   _builder.CreateRet(_builder.getInt32(0));
 
   if (llvm::verifyFunction(*mainFunc, &llvm::errs())) {
-    llvm::errs() << "Main function verification failed.\n";
+    throw CodeGenException(program->body()->location(), "Main function verification failed.");
   }
 }

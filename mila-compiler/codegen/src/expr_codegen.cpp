@@ -1,4 +1,5 @@
 #include <codegen/code_generator.h>
+#include <exception/codegen_exception.h>
 
 void CodeGenerator::visit(IntegerLiteral* expr) {
   _value = llvm::ConstantInt::get(_builder.getInt32Ty(), expr->value());
@@ -29,8 +30,7 @@ void CodeGenerator::visit(VariableExpr* expr) {
     _value = _builder.CreateLoad(var->getValueType(), var, name);
     return;
   }
-  llvm::errs() << "Error: Undefined variable '" << name << "'\n";
-  _value = nullptr;  // throw exception
+  throw CodeGenException(expr->location(), "Undefined variable: " + name);
 }
 
 void CodeGenerator::visit(BinaryExpr* expr) {
@@ -43,11 +43,11 @@ void CodeGenerator::visit(BinaryExpr* expr) {
   auto stringType = _builder.getPtrTy();
 
   if (left->getType() == stringType || right->getType() == stringType) {
-    _value = get_bin_expr_str(left, right, expr->op()->type());
+    _value = get_bin_expr_str(left, right, expr->op()->type(), expr->op()->location());
   } else if (left->getType() == doubleType || right->getType() == doubleType) {
-    _value = get_bin_expr_double(left, right, expr->op()->type());
+    _value = get_bin_expr_double(left, right, expr->op()->type(), expr->op()->location());
   } else {
-    _value = get_bin_expr_int(left, right, expr->op()->type());
+    _value = get_bin_expr_int(left, right, expr->op()->type(), expr->op()->location());
   }
 }
 
@@ -83,13 +83,12 @@ void CodeGenerator::visit(UnaryExpr* expr) {
         return;
       }
     default:
-      llvm::errs() << "Unknown unary operator " << expr->op()->type() << "\n";
-      _value = nullptr; // throw exception
+      throw CodeGenException(expr->location(), "Unknown unary operator: " + expr->op()->type());
   }
 }
 
 void CodeGenerator::visit(CallExpr* expr) {
-  _value = emitCall(expr->callee(), expr->args());
+  _value = emitCall(expr->callee(), expr->args(), expr->location());
 }
 
 void CodeGenerator::visit(ParenExpr* expr) {
@@ -114,20 +113,16 @@ void CodeGenerator::visit(ArrayAccess* expr) {
     arrayType = llvm::cast<llvm::ArrayType>(alloc->getAllocatedType());
     elementType = arrayType->getElementType();
   } else {
-    llvm::errs() << "Error: Not a valid array variable.\n";
-    // throw error
-    return;
+    throw CodeGenException(expr->location(), "Not a valid array variable: " + name);
   }
 
   int startIndex = 0;
   
-  auto it = _arrayDecls.find(expr->array());
+  auto it = _arrayDecls.find(name);
   if (it != _arrayDecls.end()) {
     startIndex = it->second->start();  // 선언 정보에서 시작 인덱스 얻기
   } else {
-    llvm::errs() << "Error: No ArrayDecl found for " << expr->array() << "\n";
-    _value = nullptr; // throw error
-    return;
+    throw CodeGenException(expr->location(), "No ArrayDecl found for: " + name);
   }
   
   if (startIndex != 0) {
@@ -142,7 +137,7 @@ void CodeGenerator::visit(ArrayAccess* expr) {
   _value = _builder.CreateLoad(elementType, gep, "element");
 }
 
-llvm::Value* CodeGenerator::get_bin_expr_double(llvm::Value* left, llvm::Value* right, TokenType type) {
+llvm::Value* CodeGenerator::get_bin_expr_double(llvm::Value* left, llvm::Value* right, TokenType type, const SourceLocation loc) {
   if (left->getType() == _builder.getInt32Ty())
     left = _builder.CreateSIToFP(left, _builder.getDoubleTy());
   else if (right->getType() == _builder.getInt32Ty())
@@ -177,12 +172,11 @@ llvm::Value* CodeGenerator::get_bin_expr_double(llvm::Value* left, llvm::Value* 
 //      return _builder.CreateAnd(left, right, "cmp");
 //    case TOK_OR:
 //      return _builder.CreateOr(left, right, "cmp");
-    default: llvm::errs() << "Not Implemented"; // throw Exception
+    default: throw CodeGenException(loc, "Not Implemented");
   }
-  return nullptr;
 }
 
-llvm::Value* CodeGenerator::get_bin_expr_int(llvm::Value* left, llvm::Value* right, TokenType type) {
+llvm::Value* CodeGenerator::get_bin_expr_int(llvm::Value* left, llvm::Value* right, TokenType type, const SourceLocation loc) {
   switch(type) {
     case TOK_PLUS:
       return _builder.CreateAdd(left, right, "add");
@@ -211,16 +205,13 @@ llvm::Value* CodeGenerator::get_bin_expr_int(llvm::Value* left, llvm::Value* rig
       return _builder.CreateAnd(left, right, "cmp");
     case TOK_OR:
       return _builder.CreateOr(left, right, "cmp");
-    default: llvm::errs() << "Not Implemented"; // throw Exception
+    default: throw CodeGenException(loc, "Not Implemented");
   }
-  return nullptr;
 }
 
-llvm::Value* CodeGenerator::get_bin_expr_str(llvm::Value* left, llvm::Value* right, TokenType type) {
-  if (type != TOK_PLUS) {
-    llvm::errs() << "String only supprot plus op\n"; // throw Exception
-    return nullptr;
-  }
+llvm::Value* CodeGenerator::get_bin_expr_str(llvm::Value* left, llvm::Value* right, TokenType type, const SourceLocation loc) {
+  if (type != TOK_PLUS)
+    throw CodeGenException(loc, "String only supprot '+' operation");
   
   if (!left->getType()->isPointerTy())
     left = emitToString(left, left->getType());

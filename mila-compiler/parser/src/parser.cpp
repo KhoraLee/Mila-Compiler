@@ -8,6 +8,7 @@ Program_D Parser::parse() {
     try {
         return programDeclaration();
     } catch (const MilaException& e) {
+        std::cerr << e.what() << std::endl;
         // TODO: Implement error hanlding
         return nullptr;
     }

@@ -79,9 +79,9 @@ private:
     llvm::Constant* getLLVMDefaultValue(TokenType type);
 
     void initializeBuiltinFunctions();
-    llvm::Value* emitCall(const std::string& callee, const std::vector<Expr>& args);
+    llvm::Value* emitCall(const std::string& callee, const std::vector<Expr>& args, const SourceLocation loc);
     llvm::Value* emitToString(llvm::Value* value, llvm::Type* type);
-    llvm::Value* get_bin_expr_double(llvm::Value* left, llvm::Value* right, TokenType type);
-    llvm::Value* get_bin_expr_int(llvm::Value* left, llvm::Value* right, TokenType type);
-    llvm::Value* get_bin_expr_str(llvm::Value* left, llvm::Value* right, TokenType type);
+    llvm::Value* get_bin_expr_double(llvm::Value* left, llvm::Value* right, TokenType type, const SourceLocation loc);
+    llvm::Value* get_bin_expr_int(llvm::Value* left, llvm::Value* right, TokenType type, const SourceLocation loc);
+    llvm::Value* get_bin_expr_str(llvm::Value* left, llvm::Value* right, TokenType type, const SourceLocation loc);
 };
