@@ -1,3 +1,5 @@
+#pragma once
+
 #include <exception/exception.h>
 
 class ParserException : public MilaException {
