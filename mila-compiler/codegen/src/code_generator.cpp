@@ -172,6 +172,34 @@ llvm::Value* CodeGenerator::emitCall(const std::string& callee, const std::vecto
 
     _builder.CreateStore(result, ptr);
     return result;
+  } else if (callee == "int" || callee == "float") {
+    if (args.size() != 1) {
+      llvm::errs() << callee << " expects 1 arguments\n";
+      return nullptr; // throw
+    }
+    
+    args.front()->accept(*this);
+    auto arg = _value;
+    
+    if (callee == "int") {
+      if (arg->getType()->isDoubleTy()) {
+        return _builder.CreateFPToSI(arg, _builder.getInt32Ty());
+      } else if (arg->getType()->isIntegerTy()) {
+        return arg;
+      } else {
+        llvm::errs() << "Unsupported type for int()\n";
+        return nullptr; // throw
+      }
+    } else {
+      if (arg->getType()->isDoubleTy()) {
+        return arg;
+      } else if (arg->getType()->isIntegerTy()) {
+        return _builder.CreateSIToFP(arg, _builder.getDoubleTy());
+      } else {
+        llvm::errs() << "Unsupported type for float()\n";
+        return nullptr; // throw
+      }
+    }
   }
 
   // Functions declared in the code
