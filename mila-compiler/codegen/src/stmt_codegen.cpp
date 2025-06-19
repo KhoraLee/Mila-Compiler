@@ -34,7 +34,9 @@ void CodeGenerator::visit(AssignStmt* stmt) {
       }
     }
     _builder.CreateStore(valueToStore, var);
+    return;
   }
+
   if (_constants[name])
     throw CodeGenException(stmt->location(), "Cannot assgin value to constant");
   throw CodeGenException(stmt->location(), "Undefined variable: " + name);
