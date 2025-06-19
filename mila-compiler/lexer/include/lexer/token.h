@@ -62,7 +62,7 @@ class FloatToken : public Token {
 public:
   FloatToken(const double value, SourceLocation loc) : Token(loc), _val(value) {}
   TokenType type() const override { return TOK_FLOAT; }
-  int value() const { return _val; }
+  double value() const { return _val; }
 
 private:
   double _val;
