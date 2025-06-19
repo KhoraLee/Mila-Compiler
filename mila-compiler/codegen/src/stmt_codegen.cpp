@@ -7,7 +7,31 @@ void CodeGenerator::visit(AssignStmt* stmt) {
   stmt->value()->accept(*this);
   
   if ((var = _variables[name]) || (var = _globals[name])) {
-    _builder.CreateStore(_value, var);
+    llvm::Type* targetType = nullptr;
+
+    if (auto* gv = llvm::dyn_cast<llvm::GlobalVariable>(var)) {
+      targetType = gv->getValueType();
+    } else if (auto* alloc = llvm::dyn_cast<llvm::AllocaInst>(var)) {
+      targetType = alloc->getAllocatedType();
+    } else {
+      llvm::errs() << "Unsupported assignment target\n";
+      return; // throw
+    }
+    
+    llvm::Value* valueToStore = _value;
+
+    if (_value->getType() != targetType) {
+      if (targetType->isDoubleTy() && _value->getType()->isIntegerTy()) {
+        valueToStore = _builder.CreateSIToFP(_value, targetType, "cast_double");
+      } else if (targetType->isIntegerTy() && _value->getType()->isDoubleTy()) {
+        valueToStore = _builder.CreateFPToSI(_value, targetType, "cast_int");
+      } else {
+        llvm::errs() << "Unsupported type cast from " << *_value->getType()
+                     << " to " << *targetType << "\n";
+        return; // throw
+      }
+    }
+    _builder.CreateStore(valueToStore, var);
   }
 //  if (_constants[name])
 //    // throw exception
@@ -56,9 +80,22 @@ void CodeGenerator::visit(ArrayAssignStmt* stmt) {
                                         "element_ptr");
 
   stmt->value()->accept(*this);
-  llvm::Value* value = _value;
+  llvm::Value* valueToStore = _value;
+  llvm::Type* targetType = arrayType->getElementType();
+  if (_value->getType() != targetType) {
+    if (targetType->isDoubleTy() && _value->getType()->isIntegerTy()) {
+      valueToStore = _builder.CreateSIToFP(_value, targetType, "cast_double");
+    } else if (targetType->isIntegerTy() && _value->getType()->isDoubleTy()) {
+      valueToStore = _builder.CreateFPToSI(_value, targetType, "cast_int");
+    } else {
+      llvm::errs() << "Unsupported type cast from " << *_value->getType()
+                   << " to " << *targetType << "\n";
+      return; // throw
+    }
+  }
 
-  _builder.CreateStore(value, gep);
+
+  _builder.CreateStore(valueToStore, gep);
 }
 
 void CodeGenerator::visit(IfStmt* stmt) {
