@@ -7,7 +7,8 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -Wno-gnu-case-range ${CMAKE_CXX_FLA
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for IntelliSense
 
-option(BUILD_TESTING ON)
+option(BUILD_TESTING "Enable test" ON)
+option(BUILD_LLVM "Build LLVM from the submodule" OFF)
 
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type selected, default to Release")
@@ -18,5 +19,6 @@ add_subdirectory(external)
 add_subdirectory(mila-compiler)
 
 if (BUILD_TESTING)
+  message(STATUS "Building with tests enabled")
   include(CMakeModules/tests.cmake)
 endif()
