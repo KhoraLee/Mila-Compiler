@@ -45,13 +45,20 @@ std::vector<Named_D> Parser::varDeclarations() {
         consume(TokenType::TOK_OF, "Expected 'of' after array bounds");
         
         // Parse array element type
+        consume(TokenType::TOK_IDENTIFIER, "Expected type name");
+        auto token = std::dynamic_pointer_cast<IdentifierToken>(_previous);
         TokenType type;
-        if (match(TokenType::TOK_INTEGER) || match(TokenType::TOK_FLOAT) || match(TokenType::TOK_STRING)) {
-            type = _previous->type();
+        auto typeName = token->name();
+        if (typeName == "integer") {
+          type = TokenType::TOK_INTEGER;
+        } else if (typeName == "float") {
+          type = TokenType::TOK_FLOAT;
+        } else if (typeName == "string") {
+          type = TokenType::TOK_STRING;
         } else {
-            throw SyntaxErrorException(_current->location(), "Expected array element type after 'of'");
+          throw SyntaxErrorException(_current->location(), "Unknown data type");
         }
-        
+
         // Update all declarations to be array declarations
         for (auto& decl : declarations) {
             decl = std::make_shared<ArrayDecl>(decl->name(), type, 
@@ -59,11 +66,18 @@ std::vector<Named_D> Parser::varDeclarations() {
         }
     } else {
         // Parse regular variable type
+        consume(TokenType::TOK_IDENTIFIER, "Expected type name");
+        auto token = std::dynamic_pointer_cast<IdentifierToken>(_previous);
         TokenType type;
-        if (match(TokenType::TOK_INTEGER) || match(TokenType::TOK_FLOAT) || match(TokenType::TOK_STRING)) {
-            type = _previous->type();
+        auto typeName = token->name();
+        if (typeName == "integer") {
+          type = TokenType::TOK_INTEGER;
+        } else if (typeName == "float") {
+          type = TokenType::TOK_FLOAT;
+        } else if (typeName == "string") {
+          type = TokenType::TOK_STRING;
         } else {
-            throw SyntaxErrorException(_current->location(), "Expected type after ':'");
+          throw SyntaxErrorException(_current->location(), "Unknown data type");
         }
         
         // Update all declarations with the correct type
@@ -95,12 +109,19 @@ Function_D Parser::functionDeclaration() {
             consume(TokenType::TOK_COLON, "Expected ':' after parameter name");
             
             TokenType paramType;
-            if (match(TokenType::TOK_INTEGER) || match(TokenType::TOK_FLOAT) || match(TokenType::TOK_STRING)) {
-                paramType = _previous->type();
+            consume(TokenType::TOK_IDENTIFIER, "Expected type name");
+            auto token = std::dynamic_pointer_cast<IdentifierToken>(_previous);
+            auto type = token->name();
+            if (type == "integer") {
+              paramType = TokenType::TOK_INTEGER;
+            } else if (type == "float") {
+              paramType = TokenType::TOK_FLOAT;
+            } else if (type == "string") {
+              paramType = TokenType::TOK_STRING;
             } else {
-                throw SyntaxErrorException(_current->location(), "Expected parameter type");
+              throw SyntaxErrorException(_current->location(), "Unknown data type");
             }
-            
+
             params.push_back({paramName, paramType});
         } while (match(TokenType::TOK_SEMICOLON));
     }
@@ -110,10 +131,17 @@ Function_D Parser::functionDeclaration() {
     TokenType returnType = TokenType::TOK_VOID;
     if (!isProcedure) {
         consume(TokenType::TOK_COLON, "Expected ':' after function parameters");
-        if (match(TokenType::TOK_INTEGER) || match(TokenType::TOK_FLOAT) || match(TokenType::TOK_STRING)) {
-            returnType = _previous->type();
+        consume(TokenType::TOK_IDENTIFIER, "Expected type name");
+        auto token = std::dynamic_pointer_cast<IdentifierToken>(_previous);
+        auto type = token->name();
+        if (type == "integer") {
+          returnType = TokenType::TOK_INTEGER;
+        } else if (type == "float") {
+          returnType = TokenType::TOK_FLOAT;
+        } else if (type == "string") {
+          returnType = TokenType::TOK_STRING;
         } else {
-            throw SyntaxErrorException(_current->location(), "Expected parameter type");
+          throw SyntaxErrorException(_current->location(), "Unknown data type");
         }
     }
     

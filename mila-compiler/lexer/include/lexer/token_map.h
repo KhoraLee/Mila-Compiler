@@ -44,9 +44,9 @@ const std::unordered_map<std::string, TokenType> keyword_map = {
   { "exit", TOK_EXIT },
 
   // Keywords - Data types
-  { "integer", TOK_INTEGER },
-  { "float", TOK_FLOAT },
-  { "string", TOK_STRING },
+//  { "integer", TOK_INTEGER },
+//  { "float", TOK_FLOAT },
+//  { "string", TOK_STRING },
 };
 
 const std::unordered_map<std::string, TokenType> operator_map = {
