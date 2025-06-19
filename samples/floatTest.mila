@@ -1,0 +1,22 @@
+program floatTest;
+
+var
+    a, b, c: float;
+    arr: array [1..10] of float;
+    i: integer;
+begin
+    a := 3.14;
+    b := 2.71;
+    c := a * b + (a / b) - b;
+    writeln(a);
+    writeln(b);
+    writeln(c);
+    if a > b then
+        writeln(1);
+    else
+        writeln(0);
+    for i := 1 to 10 do
+        arr[i] := i * (1. / 3);
+    for i := 1 to 10 do
+        writeln(arr[i]);
+end. 
