@@ -1,7 +1,11 @@
 program factorialRec;
 
 function fact(n: integer): integer;
+var
+    m: integer;
+
 begin
+    writeln(m);
     if (n = 0) then
         fact := 1;
     else
@@ -9,9 +13,9 @@ begin
 end;
 
 var
-    n: integer;
+    m: integer;
 
 begin
-    readln(n);
-    writeln(fact(n));
+    readln(m);
+    writeln(fact(m));
 end.
