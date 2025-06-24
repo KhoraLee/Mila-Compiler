@@ -227,7 +227,7 @@ llvm::Value* CodeGenerator::emitToString(llvm::Value* value, llvm::Type* type) {
   if (type->isDoubleTy()) {
     fmtStr = _builder.CreateGlobalStringPtr("%f", "fmt");
   } else {
-    fmtStr = _builder.CreateGlobalStringPtr("%f", "fmt");
+    fmtStr = _builder.CreateGlobalStringPtr("%d", "fmt");
   }
 
   _builder.CreateCall(sprintfFn, { bufPtr, fmtStr, value });
