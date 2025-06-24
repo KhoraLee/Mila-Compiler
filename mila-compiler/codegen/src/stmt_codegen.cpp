@@ -211,7 +211,7 @@ void CodeGenerator::visit(ForStmt* stmt) {
 
   // End block
   _builder.SetInsertPoint(endBlock);
-  _variables.erase(stmt->loopVar());
+//  _variables.erase(stmt->loopVar());
 }
 
 void CodeGenerator::visit(BlockStmt* stmt) {
